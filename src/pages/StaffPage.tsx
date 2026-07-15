@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { adminStaffApi } from '../lib/api';
+import { adminStaffApi, resolveImageUrl } from '../lib/api';
 import { Users } from 'lucide-react';
 
 interface Staff {
@@ -44,7 +44,7 @@ export default function StaffPage() {
             <div key={s._id} className={`card space-y-4 ${!s.active ? 'opacity-60' : ''}`}>
               <div className="flex items-center gap-4">
                 {s.photoUrl ? (
-                  <img src={s.photoUrl} alt={`${s.userId?.firstName} ${s.userId?.lastName}`} className="w-14 h-14 rounded-2xl object-cover" />
+                  <img src={resolveImageUrl(s.photoUrl)} alt={`${s.userId?.firstName} ${s.userId?.lastName}`} className="w-14 h-14 rounded-2xl object-cover" />
                 ) : (
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500/30 to-blush/30 flex items-center justify-center text-blush font-bold text-xl">
                     {s.userId?.firstName?.[0]}

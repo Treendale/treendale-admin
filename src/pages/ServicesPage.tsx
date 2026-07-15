@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Plus, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
-import { adminServicesApi, adminSettingsApi } from '../lib/api';
+import { adminServicesApi, adminSettingsApi, resolveImageUrl } from '../lib/api';
 import { formatPrice } from '../contexts/AdminAuthContext';
 import ImageUploader from '../components/ImageUploader';
 
@@ -69,7 +69,7 @@ export default function ServicesPage() {
                 {(grouped[cat] ?? []).map((svc) => (
                   <div key={svc._id} className={`card flex items-center gap-4 flex-wrap ${!svc.active ? 'opacity-50' : ''}`}>
                     {svc.imageUrl ? (
-                      <img src={svc.imageUrl} alt={svc.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-admin-border" />
+                      <img src={resolveImageUrl(svc.imageUrl)} alt={svc.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-admin-border" />
                     ) : (
                       <div className="w-14 h-14 rounded-xl bg-brand-500/10 flex items-center justify-center flex-shrink-0 border border-admin-border">
                         <span className="text-brand-400 text-lg font-bold">{svc.name[0]}</span>
@@ -108,7 +108,7 @@ export default function ServicesPage() {
               id="svc-image-uploader"
               label="Service Image"
               aspectClass="aspect-video"
-              currentUrl={editing.imageUrl || undefined}
+              currentUrl={resolveImageUrl(editing.imageUrl) || undefined}
               onUploaded={(url) => setEditing({ ...editing, imageUrl: url })}
             />
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Save, FileText, Trash2, Image as ImageIcon } from 'lucide-react';
-import { adminContentApi } from '../lib/api';
+import { adminContentApi, resolveImageUrl } from '../lib/api';
 import ImageUploader from '../components/ImageUploader';
 import clsx from 'clsx';
 
@@ -243,7 +243,7 @@ export default function ContentPage() {
                       draggedIndex === i ? 'opacity-40 border-dashed border-brand-500 scale-95' : 'border-admin-border',
                     )}
                   >
-                    <img src={img.url} alt="" className="w-full h-full object-cover pointer-events-none" loading="lazy" />
+                    <img src={resolveImageUrl(img.url)} alt="" className="w-full h-full object-cover pointer-events-none" loading="lazy" />
                     <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center pointer-events-auto">
                       <button
                         onClick={(e) => { e.stopPropagation(); removeGalleryImage(i); }}
@@ -278,7 +278,7 @@ export default function ContentPage() {
                     id={`img-${key}`}
                     label={label}
                     aspectClass={aspect}
-                    currentUrl={merged[key] || undefined}
+                    currentUrl={resolveImageUrl(merged[key]) || undefined}
                     onUploaded={(url) => updateImageUrl(key, url)}
                   />
                 ))}

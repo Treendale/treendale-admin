@@ -8,6 +8,7 @@ interface Appointment {
   _id: string;
   clientId: { firstName: string; lastName: string; phone: string; email: string };
   serviceId: { name: string; durationMinutes: number };
+  serviceIds?: Array<{ name: string; durationMinutes: number }>;
   startTime: string;
   status: string;
 }
@@ -61,10 +62,16 @@ export default function BookingsInboxPage() {
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
                   <p className="text-white font-bold text-lg">{apt.clientId?.firstName} {apt.clientId?.lastName}</p>
-                  <p className="text-brand-300 font-semibold">{apt.serviceId?.name}</p>
+                  <p className="text-brand-300 font-semibold text-sm">
+                    {apt.serviceIds && apt.serviceIds.length > 0
+                      ? apt.serviceIds.map(s => s.name).join(', ')
+                      : apt.serviceId?.name}
+                  </p>
                   <p className="text-white/50 text-sm flex items-center gap-1 mt-1">
                     <Clock className="w-3.5 h-3.5" aria-hidden="true" />
-                    {formatAWST(apt.startTime)} · {apt.serviceId?.durationMinutes} min
+                    {formatAWST(apt.startTime)} · {apt.serviceIds && apt.serviceIds.length > 0
+                      ? apt.serviceIds.reduce((sum, s) => sum + s.durationMinutes, 0)
+                      : apt.serviceId?.durationMinutes} min
                   </p>
                 </div>
                 <span className="badge-pending">pending</span>

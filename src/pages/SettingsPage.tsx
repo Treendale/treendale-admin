@@ -22,6 +22,7 @@ interface SettingsData {
   address: string;
   addressVisibility: 'public' | 'shared_after_confirmation';
   categories: string[];
+  cancellationWindowHours?: number;
 }
 
 const emptyBlockedSlot: Omit<BlockedSlot, '_id'> = { date: '', startTime: '09:00', endTime: '10:00', reason: '' };
@@ -141,6 +142,22 @@ export default function SettingsPage() {
               onChange={(e) => setForm({ ...form, bookingWindowDays: Number(e.target.value) })}
             />
             <span className="text-white/40 text-xs">Clients can book up to this many days from today</span>
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="cancellation-window" className="label">Cancellation Window (hours)</label>
+          <div className="flex items-center gap-3">
+            <input
+              id="cancellation-window"
+              type="number"
+              min={0}
+              max={720}
+              className="input w-32"
+              value={form.cancellationWindowHours ?? 24}
+              onChange={(e) => setForm({ ...form, cancellationWindowHours: Number(e.target.value) })}
+            />
+            <span className="text-white/40 text-xs">Clients can cancel their bookings up to this many hours before the slot</span>
           </div>
         </div>
 

@@ -17,6 +17,7 @@ interface Appointment {
   _id: string;
   clientId: { firstName: string; lastName: string; phone: string; email: string };
   serviceId: { name: string; price: number; durationMinutes: number };
+  serviceIds?: Array<{ name: string; price: number; durationMinutes: number }>;
   staffId: { userId: { firstName: string } };
   startTime: string;
   endTime: string;
@@ -112,7 +113,7 @@ export default function AppointmentsPage() {
                 onClick={() => setSelected(apt)}
                 role="button"
                 tabIndex={0}
-                aria-label={`${apt.clientId?.firstName} ${apt.clientId?.lastName} — ${apt.serviceId?.name}`}
+                aria-label={`${apt.clientId?.firstName} ${apt.clientId?.lastName} — ${apt.serviceIds && apt.serviceIds.length > 0 ? apt.serviceIds.map(s => s.name).join(', ') : apt.serviceId?.name}`}
                 onKeyDown={(e) => e.key === 'Enter' && setSelected(apt)}
               >
                 <div className="flex items-center gap-4 flex-wrap">
@@ -120,11 +121,19 @@ export default function AppointmentsPage() {
                     <p className="text-blush font-bold text-sm">
                       {new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Perth', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(apt.startTime))}
                     </p>
-                    <p className="text-white/30 text-xs">{apt.serviceId?.durationMinutes}m</p>
+                    <p className="text-white/30 text-xs">
+                      {apt.serviceIds && apt.serviceIds.length > 0
+                        ? apt.serviceIds.reduce((sum, s) => sum + s.durationMinutes, 0)
+                        : apt.serviceId?.durationMinutes}m
+                    </p>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-white font-medium truncate">{apt.clientId?.firstName} {apt.clientId?.lastName}</p>
-                    <p className="text-white/40 text-sm">{apt.serviceId?.name}</p>
+                    <p className="text-white/40 text-sm truncate">
+                      {apt.serviceIds && apt.serviceIds.length > 0
+                        ? apt.serviceIds.map(s => s.name).join(', ')
+                        : apt.serviceId?.name}
+                    </p>
                     <p className="text-white/30 text-xs">{apt.clientId?.phone}</p>
                   </div>
                   <span className={STATUS_BADGE[apt.status] ?? ''}>{apt.status.replace('_', ' ')}</span>
@@ -151,9 +160,13 @@ export default function AppointmentsPage() {
                 ['Client', `${selected.clientId?.firstName} ${selected.clientId?.lastName}`],
                 ['Phone', selected.clientId?.phone],
                 ['Email', selected.clientId?.email],
-                ['Service', selected.serviceId?.name],
+                ['Services', selected.serviceIds && selected.serviceIds.length > 0 
+                  ? selected.serviceIds.map(s => s.name).join(', ')
+                  : selected.serviceId?.name],
                 ['Time', formatAWST(selected.startTime)],
-                ['Duration', `${selected.serviceId?.durationMinutes} min`],
+                ['Duration', `${selected.serviceIds && selected.serviceIds.length > 0
+                  ? selected.serviceIds.reduce((sum, s) => sum + s.durationMinutes, 0)
+                  : selected.serviceId?.durationMinutes} min`],
                 ['Status', selected.status.replace('_', ' ')],
               ].map(([label, val]) => (
                 <div key={label} className="flex gap-2">

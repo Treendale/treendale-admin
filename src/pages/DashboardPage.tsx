@@ -89,6 +89,7 @@ export default function DashboardPage() {
               _id: string;
               clientId: { firstName: string; lastName: string; phone: string; email: string };
               serviceId: { name: string; price: number };
+              serviceIds?: Array<{ name: string; price: number }>;
               startTime: string;
               status: string;
             }) => (
@@ -97,7 +98,11 @@ export default function DashboardPage() {
                   <p className="text-white font-medium text-sm truncate">
                     {apt.clientId?.firstName} {apt.clientId?.lastName}
                   </p>
-                  <p className="text-white/40 text-xs">{apt.serviceId?.name} · {formatAWST(apt.startTime)}</p>
+                  <p className="text-white/40 text-xs">
+                    {apt.serviceIds && apt.serviceIds.length > 0
+                      ? apt.serviceIds.map(s => s.name).join(', ')
+                      : apt.serviceId?.name} · {formatAWST(apt.startTime)}
+                  </p>
                   <p className="text-white/30 text-xs">{apt.clientId?.phone}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -138,6 +143,7 @@ export default function DashboardPage() {
                 _id: string;
                 clientId: { firstName: string; lastName: string };
                 serviceId: { name: string };
+                serviceIds?: Array<{ name: string }>;
                 startTime: string;
                 status: string;
               }) => (
@@ -151,7 +157,11 @@ export default function DashboardPage() {
                     <p className="text-white text-sm font-medium truncate">
                       {apt.clientId?.firstName} {apt.clientId?.lastName}
                     </p>
-                    <p className="text-white/40 text-xs">{apt.serviceId?.name}</p>
+                    <p className="text-white/40 text-xs">
+                      {apt.serviceIds && apt.serviceIds.length > 0
+                        ? apt.serviceIds.map(s => s.name).join(', ')
+                        : apt.serviceId?.name}
+                    </p>
                   </div>
                   <span className={STATUS_BADGE[apt.status] ?? ''}>{apt.status}</span>
                 </div>
