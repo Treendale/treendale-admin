@@ -109,7 +109,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-cocoa flex items-center gap-2">
           <Settings className="w-6 h-6" aria-hidden="true" /> Business Settings
         </h1>
         <div className="flex flex-col items-end gap-1">
@@ -127,7 +127,7 @@ export default function SettingsPage() {
 
       {/* ── General ── */}
       <div className="card space-y-4">
-        <h2 className="font-semibold text-white">General</h2>
+        <h2 className="font-semibold text-cocoa">General</h2>
 
         <div>
           <label htmlFor="booking-window" className="label">Booking Window (days ahead)</label>
@@ -141,7 +141,7 @@ export default function SettingsPage() {
               value={form.bookingWindowDays ?? 10}
               onChange={(e) => setForm({ ...form, bookingWindowDays: Number(e.target.value) })}
             />
-            <span className="text-white/40 text-xs">Clients can book up to this many days from today</span>
+            <span className="text-cocoa/40 text-xs">Clients can book up to this many days from today</span>
           </div>
         </div>
 
@@ -157,7 +157,7 @@ export default function SettingsPage() {
               value={form.cancellationWindowHours ?? 24}
               onChange={(e) => setForm({ ...form, cancellationWindowHours: Number(e.target.value) })}
             />
-            <span className="text-white/40 text-xs">Clients can cancel their bookings up to this many hours before the slot</span>
+            <span className="text-cocoa/40 text-xs">Clients can cancel their bookings up to this many hours before the slot</span>
           </div>
         </div>
 
@@ -175,7 +175,7 @@ export default function SettingsPage() {
               <option value={45}>45 minutes</option>
               <option value={60}>60 minutes</option>
             </select>
-            <span className="text-white/40 text-xs">Time interval increments offered between booking slots</span>
+            <span className="text-cocoa/40 text-xs">Time interval increments offered between booking slots</span>
           </div>
         </div>
 
@@ -189,18 +189,18 @@ export default function SettingsPage() {
             value={form.address ?? ''}
             onChange={(e) => setForm({ ...form, address: e.target.value })}
           />
-          <p className="text-white/30 text-xs mt-1">Never hardcoded. Only stored in the database.</p>
+          <p className="text-cocoa/30 text-xs mt-1">Never hardcoded. Only stored in the database.</p>
         </div>
       </div>
 
       {/* ── Dynamic Categories ── */}
       <div className="card space-y-4">
-        <h2 className="font-semibold text-white">Service Categories</h2>
-        <p className="text-white/40 text-xs">Manage dynamic service categories shown in the booking page tabs.</p>
+        <h2 className="font-semibold text-cocoa">Service Categories</h2>
+        <p className="text-cocoa/40 text-xs">Manage dynamic service categories shown in the booking page tabs.</p>
         
         <div className="flex flex-wrap gap-2">
           {(form.categories ?? []).map((cat, i) => (
-            <span key={cat} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-admin-bg border border-admin-border text-sm text-white">
+            <span key={cat} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-admin-bg border border-admin-border text-sm text-cocoa">
               {cat}
               <button
                 type="button"
@@ -244,7 +244,7 @@ export default function SettingsPage() {
                 if (el) el.value = '';
               }
             }}
-            className="btn-primary text-xs py-2 px-3 flex items-center gap-1 text-white-force min-h-[38px]"
+            className="btn-primary text-xs py-2 px-3 flex items-center gap-1 text-white min-h-[38px]"
           >
             <Plus className="w-4 h-4" /> Add
           </button>
@@ -253,8 +253,8 @@ export default function SettingsPage() {
 
       {/* ── Business Hours ── */}
       <div className="card space-y-4">
-        <h2 className="font-semibold text-white">Business Hours</h2>
-        <p className="text-white/40 text-xs">Click a day to toggle it on/off. Adjust times for each active day.</p>
+        <h2 className="font-semibold text-cocoa">Business Hours</h2>
+        <p className="text-cocoa/40 text-xs">Click a day to toggle it on/off. Adjust times for each active day.</p>
         <div className="space-y-2">
           {DAYS.map((day, i) => {
             const entry = form.businessHours?.find((h) => h.dayOfWeek === i);
@@ -265,7 +265,7 @@ export default function SettingsPage() {
                   onClick={() => toggleDay(i)}
                   className={clsx(
                     'w-12 py-1.5 rounded-lg text-xs font-medium border transition-all min-h-[44px]',
-                    active ? 'bg-brand-500/20 text-blush border-brand-500/30' : 'text-white/30 border-admin-border',
+                    active ? 'bg-brand-500/20 text-blush border-brand-500/30' : 'text-cocoa/30 border-admin-border',
                   )}
                   aria-pressed={active}
                   aria-label={`Toggle ${day}`}
@@ -284,7 +284,7 @@ export default function SettingsPage() {
                       })}
                       aria-label={`${day} start time`}
                     />
-                    <span className="text-white/30 text-sm">–</span>
+                    <span className="text-cocoa/30 text-sm">–</span>
                     <input
                       type="time"
                       className="input w-32 text-sm"
@@ -305,8 +305,8 @@ export default function SettingsPage() {
 
       {/* ── Closures ── */}
       <div className="card space-y-4">
-        <h2 className="font-semibold text-white">Closures &amp; Holidays</h2>
-        <p className="text-white/40 text-xs">Add WA public holidays or one-off closure dates. No slots will be offered on these dates.</p>
+        <h2 className="font-semibold text-cocoa">Closures &amp; Holidays</h2>
+        <p className="text-cocoa/40 text-xs">Add WA public holidays or one-off closure dates. No slots will be offered on these dates.</p>
 
         <div className="flex gap-2 flex-wrap items-center">
           <AdminDatePicker
@@ -337,7 +337,7 @@ export default function SettingsPage() {
           <div className="space-y-2">
             {form.closures!.map((c, i) => (
               <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-admin-bg border border-admin-border">
-                <span className="text-white/50 text-sm flex-1">{c.date} — {c.reason}</span>
+                <span className="text-cocoa/50 text-sm flex-1">{c.date} — {c.reason}</span>
                 <button
                   onClick={() => removeClosure(i)}
                   className="btn-ghost p-1.5 hover:text-red-400"
@@ -355,9 +355,9 @@ export default function SettingsPage() {
       <div className="card space-y-4">
         <div className="flex items-center gap-2">
           <Ban className="w-4 h-4 text-brand-400" aria-hidden="true" />
-          <h2 className="font-semibold text-white">Blocked Time Slots</h2>
+          <h2 className="font-semibold text-cocoa">Blocked Time Slots</h2>
         </div>
-        <p className="text-white/40 text-xs">
+        <p className="text-cocoa/40 text-xs">
           Block a specific time window on a date — e.g. "tomorrow 2 pm – 4 pm". Clients won't be able to book any slot that overlaps this window.
         </p>
 
@@ -386,7 +386,7 @@ export default function SettingsPage() {
 
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <Clock className="w-4 h-4 text-white/30 flex-shrink-0" aria-hidden="true" />
+              <Clock className="w-4 h-4 text-cocoa/30 flex-shrink-0" aria-hidden="true" />
               <input
                 id="blocked-start-time"
                 type="time"
@@ -395,7 +395,7 @@ export default function SettingsPage() {
                 onChange={(e) => setNewBlockedSlot({ ...newBlockedSlot, startTime: e.target.value })}
                 aria-label="Block start time"
               />
-              <span className="text-white/30 text-sm flex-shrink-0">to</span>
+              <span className="text-cocoa/30 text-sm flex-shrink-0">to</span>
               <input
                 id="blocked-end-time"
                 type="time"
@@ -431,10 +431,10 @@ export default function SettingsPage() {
                   <Ban className="w-4 h-4 text-brand-400" aria-hidden="true" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium">{bs.date}</p>
-                  <p className="text-white/40 text-xs">
+                  <p className="text-cocoa text-sm font-medium">{bs.date}</p>
+                  <p className="text-cocoa/40 text-xs">
                     {bs.startTime} – {bs.endTime}
-                    {bs.reason && <span className="ml-2 text-white/30">· {bs.reason}</span>}
+                    {bs.reason && <span className="ml-2 text-cocoa/30">· {bs.reason}</span>}
                   </p>
                 </div>
                 <button
@@ -450,7 +450,7 @@ export default function SettingsPage() {
         )}
 
         {(form.blockedSlots ?? []).length === 0 && (
-          <p className="text-white/20 text-xs text-center py-2">No blocked slots configured.</p>
+          <p className="text-cocoa/20 text-xs text-center py-2">No blocked slots configured.</p>
         )}
       </div>
     </div>

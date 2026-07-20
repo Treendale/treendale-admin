@@ -52,15 +52,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             className={({ isActive }) => clsx(
               'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group min-h-[44px] relative',
               isActive
-                ? 'bg-brand-500/15 text-white border border-brand-500/20'
-                : 'text-white/50 hover:text-white hover:bg-white/5',
+                ? 'bg-brand-500/15 text-cocoa border border-brand-500/20'
+                : 'text-cocoa/50 hover:text-white hover:bg-white/5',
             )}
             aria-label={label}
           >
             <Icon className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
             <span>{label}</span>
             {hasUnread && (
-              <span className="ml-auto w-5 h-5 rounded-full bg-brand-500 text-white text-xs flex items-center justify-center font-bold">
+              <span className="ml-auto w-5 h-5 rounded-full bg-brand-500 text-cocoa text-xs flex items-center justify-center font-bold">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -76,11 +76,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className="hidden lg:flex flex-col w-64 bg-admin-card border-r border-admin-border fixed inset-y-0 left-0 z-30">
         <div className="flex items-center gap-2 px-5 py-5 border-b border-admin-border">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-white" aria-hidden="true" />
+            <Sparkles className="w-4 h-4 text-cocoa" aria-hidden="true" />
           </div>
           <div>
-            <p className="text-white font-semibold text-sm leading-tight">Treendale</p>
-            <p className="text-white/30 text-xs">Admin Panel</p>
+            <p className="text-cocoa font-semibold text-sm leading-tight">Treendale</p>
+            <p className="text-cocoa/30 text-xs">Admin Panel</p>
           </div>
         </div>
 
@@ -94,8 +94,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {user?.firstName?.[0]}
             </div>
             <div className="min-w-0">
-              <p className="text-white text-sm font-medium truncate">{user?.firstName} {user?.lastName}</p>
-              <p className="text-white/30 text-xs capitalize">{user?.role}</p>
+              <p className="text-cocoa text-sm font-medium truncate">{user?.firstName} {user?.lastName}</p>
+              <p className="text-cocoa/30 text-xs capitalize">{user?.role}</p>
             </div>
           </div>
           <button onClick={handleLogout} className="btn-ghost w-full justify-start text-xs">
@@ -115,7 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         sidebarOpen ? 'translate-x-0' : '-translate-x-full',
       )}>
         <div className="flex items-center justify-between px-4 py-4 border-b border-admin-border">
-          <span className="text-white font-semibold text-sm">Treendale Admin</span>
+          <span className="text-cocoa font-semibold text-sm">Treendale Admin</span>
           <button onClick={() => setSidebarOpen(false)} className="btn-ghost p-2" aria-label="Close menu">
             <X className="w-4 h-4" />
           </button>
@@ -145,12 +145,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <NavLink to="/notifications" className="btn-ghost relative p-2" aria-label="Notifications">
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-brand-500 text-white text-xs flex items-center justify-center font-bold" aria-label={`${unreadCount} unread`}>
+              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-brand-500 text-cocoa text-xs flex items-center justify-center font-bold" aria-label={`${unreadCount} unread`}>
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </NavLink>
-          <div className="text-sm text-white/50 hidden sm:block">
+          <div className="text-sm text-cocoa/50 hidden sm:block">
             {user?.firstName} {user?.lastName}
           </div>
         </header>

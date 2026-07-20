@@ -11,7 +11,7 @@ const TEXT_PAGES = [
   {
     page: 'global',
     label: 'Logos & Branding',
-    textKeys: [],
+    textKeys: ['footer_tagline', 'footer_cta_text', 'footer_attribution'],
     imageKeys: [
       { key: 'logo_main_url',   label: 'Main Header Logo', aspect: 'h-36 w-full' },
       { key: 'logo_footer_url', label: 'Footer Logo',      aspect: 'h-36 w-full' },
@@ -20,7 +20,25 @@ const TEXT_PAGES = [
   {
     page: 'home',
     label: 'Home',
-    textKeys: ['hero_heading', 'hero_subheading', 'hero_cta', 'intro_text'],
+    textKeys: [
+      'hero_heading',
+      'hero_subheading',
+      'hero_cta',
+      'hero_location_badge',
+      'intro_heading',
+      'intro_text',
+      'intro_description',
+      'value1_title',
+      'value1_desc',
+      'value2_title',
+      'value2_desc',
+      'value3_title',
+      'value3_desc',
+      'popular_heading',
+      'popular_subheading',
+      'cta_heading',
+      'cta_subheading',
+    ],
     imageKeys: [
       { key: 'hero_image_url',     label: 'Hero Image (Home Page)',     aspect: 'h-36 w-full' },
       { key: 'interior_image_url', label: 'Salon Interior (Home Page)', aspect: 'h-36 w-full' },
@@ -29,13 +47,47 @@ const TEXT_PAGES = [
   {
     page: 'about',
     label: 'About',
-    textKeys: ['about_heading', 'about_text'],
+    textKeys: [
+      'about_badge',
+      'about_heading',
+      'about_text',
+      'story1_title',
+      'story1_desc',
+      'story2_title',
+      'story2_desc',
+      'story3_title',
+      'story3_desc',
+      'story4_title',
+      'story4_desc',
+    ],
+    imageKeys: [],
+  },
+  {
+    page: 'gallery',
+    label: 'Gallery Text',
+    textKeys: ['gallery_heading', 'gallery_subheading', 'gallery_empty_text'],
     imageKeys: [],
   },
   {
     page: 'contact',
     label: 'Contact & Socials',
-    textKeys: ['contact_heading', 'contact_intro', 'phone', 'email', 'instagram_url', 'facebook_url', 'tiktok_url'],
+    textKeys: [
+      'contact_heading',
+      'contact_intro',
+      'phone',
+      'email',
+      'instagram_url',
+      'facebook_url',
+      'tiktok_url',
+      'location_label',
+      'location_subtext',
+      'address_hidden_text',
+      'phone_label',
+      'email_label',
+      'form_heading',
+      'form_success_heading',
+      'form_success_subtext',
+    ],
     imageKeys: [],
   },
 ];
@@ -153,16 +205,16 @@ export default function ContentPage() {
   }
 
   const pageConfig = TEXT_PAGES.find((p) => p.page === activePage);
-  const isGallery = activePage === 'gallery';
+  const isGallery = activePage === 'gallery-images';
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-cocoa flex items-center gap-2">
             <FileText className="w-6 h-6" aria-hidden="true" /> Website Content
           </h1>
-          <p className="text-white/40 text-sm mt-1">Edit public website copy and images. Changes are live immediately.</p>
+          <p className="text-cocoa/40 text-sm mt-1">Edit public website copy and images. Changes are live immediately.</p>
         </div>
         {!isGallery && (
           <button
@@ -190,15 +242,15 @@ export default function ContentPage() {
 
       {/* Page tabs */}
       <div className="flex gap-2 flex-wrap">
-        {[...TEXT_PAGES.map((p) => ({ page: p.page, label: p.label })), { page: 'gallery', label: 'Gallery' }].map(({ page, label }) => (
+        {[...TEXT_PAGES.map((p) => ({ page: p.page, label: p.label })), { page: 'gallery-images', label: 'Gallery Images' }].map(({ page, label }) => (
           <button
             key={page}
             id={`content-tab-${page}`}
             onClick={() => { setActivePage(page); setEdits({}); }}
             className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all capitalize min-h-[44px] border ${
               activePage === page
-                ? 'bg-brand-500 text-white border-brand-500 shadow-md shadow-brand-500/10'
-                : 'border-admin-border text-white/50 hover:text-white hover:border-white/20'
+                ? 'bg-brand-500 text-cocoa border-brand-500 shadow-md shadow-brand-500/10'
+                : 'border-admin-border text-cocoa/50 hover:text-white hover:border-white/20'
             }`}
           >
             {label}
@@ -210,7 +262,7 @@ export default function ContentPage() {
       {isGallery && (
         <div className="space-y-6">
           <div className="card space-y-4">
-            <h2 className="font-semibold text-white flex items-center gap-2">
+            <h2 className="font-semibold text-cocoa flex items-center gap-2">
               <ImageIcon className="w-4 h-4 text-brand-400" /> Upload Images
             </h2>
             <ImageUploader
@@ -226,8 +278,8 @@ export default function ContentPage() {
           {galleryImages.length > 0 && (
             <div className="card space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-white">Gallery ({galleryImages.length} images)</h2>
-                <span className="text-white/40 text-xs select-none">💡 Drag and drop items to re-order</span>
+                <h2 className="font-semibold text-cocoa">Gallery ({galleryImages.length} images)</h2>
+                <span className="text-cocoa/40 text-xs select-none">💡 Drag and drop items to re-order</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {galleryImages.map((img, i) => (
@@ -247,7 +299,7 @@ export default function ContentPage() {
                     <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center pointer-events-auto">
                       <button
                         onClick={(e) => { e.stopPropagation(); removeGalleryImage(i); }}
-                        className="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-all text-white-force shadow-md"
+                        className="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-all text-white shadow-md"
                         aria-label={`Remove image ${i + 1}`}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -267,7 +319,7 @@ export default function ContentPage() {
           {/* Image fields */}
           {pageConfig.imageKeys.length > 0 && (
             <div className="card space-y-4">
-              <h2 className="font-semibold text-white flex items-center gap-2">
+              <h2 className="font-semibold text-cocoa flex items-center gap-2">
                 <ImageIcon className="w-4 h-4 text-brand-400" /> Page Images
               </h2>
               {/* Render image uploaders side by side on desktop */}
@@ -295,7 +347,7 @@ export default function ContentPage() {
               <label htmlFor={`content-${key}`} className="label">
                 {key.replace(/_/g, ' ').toUpperCase()}
               </label>
-              {key.includes('text') || key.includes('intro') || key.includes('bio') ? (
+              {key.includes('text') || key.includes('intro') || key.includes('bio') || key.includes('desc') || key.includes('subheading') || key.includes('tagline') || key.includes('subtext') ? (
                 <textarea
                   id={`content-${key}`}
                   rows={4}

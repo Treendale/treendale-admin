@@ -60,6 +60,7 @@ export const adminAppointmentsApi = {
   cancel: (id: string, reason: string) => api.patch(`/appointments/${id}/cancel`, { cancellationReason: reason }),
   complete: (id: string) => api.patch(`/appointments/${id}/complete`),
   noShow: (id: string) => api.patch(`/appointments/${id}/no-show`),
+  reschedule: (id: string, startTime: string) => api.patch(`/appointments/${id}/reschedule`, { startTime }),
 };
 
 export const adminSettingsApi = {

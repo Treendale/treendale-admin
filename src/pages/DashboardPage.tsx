@@ -48,8 +48,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-        <p className="text-white/40 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-cocoa">Dashboard</h1>
+        <p className="text-cocoa/40 text-sm mt-1">
           {new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Perth', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())} — AWST
         </p>
       </div>
@@ -64,10 +64,10 @@ export default function DashboardPage() {
         ].map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="stat-card">
             <div className="flex items-center justify-between">
-              <span className="text-white/40 text-xs uppercase tracking-wider">{label}</span>
+              <span className="text-cocoa/40 text-xs uppercase tracking-wider">{label}</span>
               <Icon className={clsx('w-4 h-4', color)} aria-hidden="true" />
             </div>
-            <span className="text-3xl font-bold text-white">{value}</span>
+            <span className="text-3xl font-bold text-cocoa">{value}</span>
           </div>
         ))}
       </div>
@@ -76,7 +76,7 @@ export default function DashboardPage() {
       {pendingAppts.length > 0 && (
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-white flex items-center gap-2">
+            <h2 className="font-semibold text-cocoa flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-yellow-400" aria-hidden="true" />
               Needs Confirmation ({pendingAppts.length})
             </h2>
@@ -95,15 +95,15 @@ export default function DashboardPage() {
             }) => (
               <div key={apt._id} className="flex items-center justify-between gap-4 p-3 rounded-lg bg-admin-bg border border-admin-border flex-wrap">
                 <div className="min-w-0">
-                  <p className="text-white font-medium text-sm truncate">
+                  <p className="text-cocoa font-medium text-sm truncate">
                     {apt.clientId?.firstName} {apt.clientId?.lastName}
                   </p>
-                  <p className="text-white/40 text-xs">
+                  <p className="text-cocoa/40 text-xs">
                     {apt.serviceIds && apt.serviceIds.length > 0
                       ? apt.serviceIds.map(s => s.name).join(', ')
                       : apt.serviceId?.name} · {formatAWST(apt.startTime)}
                   </p>
-                  <p className="text-white/30 text-xs">{apt.clientId?.phone}</p>
+                  <p className="text-cocoa/30 text-xs">{apt.clientId?.phone}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
@@ -125,7 +125,7 @@ export default function DashboardPage() {
       {/* Today's schedule */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-white flex items-center gap-2">
+          <h2 className="font-semibold text-cocoa flex items-center gap-2">
             <CalendarCheck className="w-4 h-4 text-blush" aria-hidden="true" />
             Today's Schedule
           </h2>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
           </Link>
         </div>
         {todayAppts.length === 0 ? (
-          <p className="text-white/30 text-sm text-center py-8">No appointments today.</p>
+          <p className="text-cocoa/30 text-sm text-center py-8">No appointments today.</p>
         ) : (
           <div className="space-y-2">
             {todayAppts
@@ -154,10 +154,10 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-medium truncate">
+                    <p className="text-cocoa text-sm font-medium truncate">
                       {apt.clientId?.firstName} {apt.clientId?.lastName}
                     </p>
-                    <p className="text-white/40 text-xs">
+                    <p className="text-cocoa/40 text-xs">
                       {apt.serviceIds && apt.serviceIds.length > 0
                         ? apt.serviceIds.map(s => s.name).join(', ')
                         : apt.serviceId?.name}

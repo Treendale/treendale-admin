@@ -86,7 +86,7 @@ export default function ImageUploader({
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="btn-primary text-xs py-2 px-3 text-white-force"
+                className="btn-primary text-xs py-2 px-3 text-white"
                 disabled={uploading}
               >
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
@@ -95,7 +95,7 @@ export default function ImageUploader({
               <button
                 type="button"
                 onClick={() => onUploaded('')}
-                className="btn-secondary text-xs py-2 px-3 text-white-force"
+                className="btn-secondary text-xs py-2 px-3 text-white"
               >
                 <X className="w-4 h-4" /> Remove
               </button>
@@ -107,7 +107,7 @@ export default function ImageUploader({
             id={id}
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white/30 hover:text-white/60 transition-all w-full h-full p-2"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-cocoa/30 hover:text-cocoa/60 transition-all w-full h-full p-2"
           >
             {uploading ? (
               <Loader2 className="w-6 h-6 animate-spin text-brand-400" />
@@ -117,7 +117,7 @@ export default function ImageUploader({
                 <span className="text-xs font-semibold">
                   {multiple ? 'Click to select multiple' : 'Click or drag & drop'}
                 </span>
-                <span className="text-[10px] text-white/20">JPEG, PNG, WebP · max 10MB</span>
+                <span className="text-[10px] text-cocoa/20">JPEG, PNG, WebP · max 10MB</span>
               </>
             )}
           </button>

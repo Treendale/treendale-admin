@@ -4,6 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        cocoa: '#3A2729',
         brand: {
           50:  '#faf0f1',
           100: '#f5dbe0',
@@ -35,8 +36,8 @@ export default {
         },
       },
       fontFamily: {
-        sans:    ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Playfair Display', 'Georgia', 'serif'],
+        sans:    ['Sofia Sans', 'system-ui', 'sans-serif'],
+        display: ['Candara', 'Calibri', 'Segoe UI', 'sans-serif'],
       },
       animation: {
         'fade-in':  'fadeIn 0.2s ease-in-out',
