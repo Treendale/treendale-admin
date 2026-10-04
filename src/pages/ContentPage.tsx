@@ -1,56 +1,62 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, FileText, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Save, FileText, Image as ImageIcon } from 'lucide-react';
 import { adminContentApi, resolveImageUrl } from '../lib/api';
 import ImageUploader from '../components/ImageUploader';
-import clsx from 'clsx';
 
 // ─── Page config ────────────────────────────────────────────────────────────────
-// Text-only keys for each page (image keys handled separately)
+// Text and image keys for every customer-facing page
 const TEXT_PAGES = [
   {
-    page: 'global',
-    label: 'Logos & Branding',
-    textKeys: ['footer_tagline', 'footer_cta_text', 'footer_attribution'],
+    page: 'home',
+    label: 'Home Page',
     imageKeys: [
-      { key: 'logo_main_url',   label: 'Main Header Logo', aspect: 'h-36 w-full' },
-      { key: 'logo_footer_url', label: 'Footer Logo',      aspect: 'h-36 w-full' },
+      { key: 'hero_image_url',     label: 'Hero Background Image', aspect: 'h-40 w-full' },
+      { key: 'interior_image_url', label: 'Texture / Salon Image', aspect: 'h-40 w-full' },
+    ],
+    textKeys: [
+      'hero_heading',
+      'hero_tagline',
+      'hero_subheading',
+      'hero_cta',
+      'intro_heading',
+      'card1_title',
+      'card1_text',
+      'card1_cta',
+      'card2_title',
+      'card2_text',
+      'card2_cta',
+      'card3_title',
+      'card3_text',
+      'card3_cta',
     ],
   },
   {
-    page: 'home',
-    label: 'Home',
-    textKeys: [
-      'hero_heading',
-      'hero_subheading',
-      'hero_cta',
-      'hero_location_badge',
-      'intro_heading',
-      'intro_text',
-      'intro_description',
-      'value1_title',
-      'value1_desc',
-      'value2_title',
-      'value2_desc',
-      'value3_title',
-      'value3_desc',
-      'popular_heading',
-      'popular_subheading',
-      'cta_heading',
-      'cta_subheading',
-    ],
+    page: 'services',
+    label: 'Services Page',
     imageKeys: [
-      { key: 'hero_image_url',     label: 'Hero Image (Home Page)',     aspect: 'h-36 w-full' },
-      { key: 'interior_image_url', label: 'Salon Interior (Home Page)', aspect: 'h-36 w-full' },
+      { key: 'hero_image_url', label: 'Services Hero Banner', aspect: 'h-40 w-full' },
+    ],
+    textKeys: [
+      'hero_title',
+      'hero_subtitle',
     ],
   },
   {
     page: 'about',
-    label: 'About',
+    label: 'About Page',
+    imageKeys: [
+      { key: 'hero_image_url', label: 'About Hero Banner', aspect: 'h-40 w-full' },
+    ],
     textKeys: [
+      'hero_title',
+      'hero_subtitle',
       'about_badge',
       'about_heading',
       'about_text',
+      'about_text_secondary',
+      'about_cta',
+      'standards_heading',
       'story1_title',
       'story1_desc',
       'story2_title',
@@ -60,35 +66,61 @@ const TEXT_PAGES = [
       'story4_title',
       'story4_desc',
     ],
-    imageKeys: [],
-  },
-  {
-    page: 'gallery',
-    label: 'Gallery Text',
-    textKeys: ['gallery_heading', 'gallery_subheading', 'gallery_empty_text'],
-    imageKeys: [],
   },
   {
     page: 'contact',
     label: 'Contact & Socials',
+    imageKeys: [
+      { key: 'hero_image_url', label: 'Contact Hero Banner', aspect: 'h-40 w-full' },
+    ],
     textKeys: [
-      'contact_heading',
-      'contact_intro',
+      'hero_title',
+      'hero_subtitle',
+      'socials_heading',
+      'location_badge',
+      'location_title',
+      'location_subtext',
+      'hours_badge',
+      'hours_title',
+      'hours_subtext',
+      'policy_badge',
+      'policy_subtext',
+      'form_heading',
+      'form_subtext',
+      'form_success_heading',
+      'form_success_subtext',
       'phone',
       'email',
       'instagram_url',
       'facebook_url',
       'tiktok_url',
-      'location_label',
-      'location_subtext',
-      'address_hidden_text',
-      'phone_label',
-      'email_label',
-      'form_heading',
-      'form_success_heading',
-      'form_success_subtext',
     ],
-    imageKeys: [],
+  },
+  {
+    page: 'policies',
+    label: 'Policies Page',
+    imageKeys: [
+      { key: 'hero_image_url', label: 'Policies Hero Banner', aspect: 'h-40 w-full' },
+    ],
+    textKeys: [
+      'hero_title',
+      'hero_subtitle',
+      'notice_title',
+      'notice_text',
+      'arrival_title',
+      'arrival_text',
+      'booking_terms_title',
+      'booking_terms_text',
+    ],
+  },
+  {
+    page: 'global',
+    label: 'Logos & Branding',
+    imageKeys: [
+      { key: 'logo_main_url',   label: 'Main Header Logo', aspect: 'h-36 w-full' },
+      { key: 'logo_footer_url', label: 'Footer Logo',      aspect: 'h-36 w-full' },
+    ],
+    textKeys: ['footer_tagline', 'footer_cta_text', 'footer_attribution'],
   },
 ];
 
@@ -98,30 +130,11 @@ export default function ContentPage() {
   const [saved, setSaved] = useState<string | null>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
 
-  // Gallery images state (separate from the content block system)
-  const [galleryImages, setGalleryImages] = useState<Array<{ url: string; alt: string }>>([]);
-  const [galleryDirty, setGalleryDirty] = useState(false);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-
   const { data, isLoading } = useQuery({
     queryKey: ['admin-content', activePage],
     queryFn: () => adminContentApi.getPage(activePage),
   });
   const content: Record<string, string> = data?.data?.data?.content ?? {};
-
-  // Sync gallery from content when gallery tab is opened
-  const { data: galleryData } = useQuery({
-    queryKey: ['admin-content', 'gallery'],
-    queryFn: () => adminContentApi.getPage('gallery'),
-  });
-  useEffect(() => {
-    if (galleryData) {
-      try {
-        const raw = galleryData?.data?.data?.content?.images;
-        setGalleryImages(raw ? JSON.parse(raw) : []);
-      } catch { setGalleryImages([]); }
-    }
-  }, [galleryData]);
 
   // Reset edits when page tab changes
   useEffect(() => { setEdits({}); }, [activePage]);
@@ -134,70 +147,19 @@ export default function ContentPage() {
   });
 
   async function saveTextEdits() {
-    await Promise.all(
-      Object.entries(edits).map(([key, value]) =>
-        updateMutation.mutateAsync({ page: activePage, key, value }),
-      ),
-    );
+    try {
+      await adminContentApi.bulkUpdate(activePage, edits);
+    } catch {
+      await Promise.all(
+        Object.entries(edits).map(([key, value]) =>
+          updateMutation.mutateAsync({ page: activePage, key, value }),
+        ),
+      );
+    }
     queryClient.invalidateQueries({ queryKey: ['admin-content', activePage] });
     setEdits({});
     setSaved(activePage);
     setTimeout(() => setSaved(null), 2000);
-  }
-
-  async function saveGallery() {
-    await updateMutation.mutateAsync({
-      page: 'gallery',
-      key: 'images',
-      value: JSON.stringify(galleryImages),
-    });
-    queryClient.invalidateQueries({ queryKey: ['admin-content', 'gallery'] });
-    setGalleryDirty(false);
-    setSaved('gallery');
-    setTimeout(() => setSaved(null), 2000);
-  }
-
-  function addGalleryImage(url: string) {
-    if (!url) return;
-    setGalleryImages((prev) => [{ url, alt: '' }, ...prev]);
-    setGalleryDirty(true);
-  }
-
-  // Prepend newly uploaded multiple images to the top of the gallery list
-  function addMultipleGalleryImages(urls: string[]) {
-    if (!urls || urls.length === 0) return;
-    const newItems = urls.map((url) => ({ url, alt: '' }));
-    setGalleryImages((prev) => [...newItems, ...prev]);
-    setGalleryDirty(true);
-  }
-
-  function removeGalleryImage(i: number) {
-    setGalleryImages((prev) => prev.filter((_, idx) => idx !== i));
-    setGalleryDirty(true);
-  }
-
-  // Native HTML5 Drag and Drop Reordering handlers
-  function handleDragStart(index: number) {
-    setDraggedIndex(index);
-  }
-
-  function handleDragEnter(index: number) {
-    if (draggedIndex === null || draggedIndex === index) return;
-
-    const copy = [...galleryImages];
-    const item = copy[draggedIndex];
-    // Remove the dragged item
-    copy.splice(draggedIndex, 1);
-    // Insert at current hover position
-    copy.splice(index, 0, item);
-
-    setDraggedIndex(index);
-    setGalleryImages(copy);
-    setGalleryDirty(true);
-  }
-
-  function handleDragEnd() {
-    setDraggedIndex(null);
   }
 
   function updateImageUrl(key: string, url: string) {
@@ -205,7 +167,6 @@ export default function ContentPage() {
   }
 
   const pageConfig = TEXT_PAGES.find((p) => p.page === activePage);
-  const isGallery = activePage === 'gallery-images';
 
   return (
     <div className="space-y-6">
@@ -216,33 +177,20 @@ export default function ContentPage() {
           </h1>
           <p className="text-cocoa/40 text-sm mt-1">Edit public website copy and images. Changes are live immediately.</p>
         </div>
-        {!isGallery && (
-          <button
-            onClick={saveTextEdits}
-            disabled={Object.keys(edits).length === 0 || updateMutation.isPending}
-            className="btn-primary text-sm"
-            id="save-content-btn"
-          >
-            <Save className="w-4 h-4" />
-            {updateMutation.isPending ? 'Saving...' : saved ? '✓ Saved!' : 'Save Changes'}
-          </button>
-        )}
-        {isGallery && (
-          <button
-            onClick={saveGallery}
-            disabled={!galleryDirty || updateMutation.isPending}
-            className="btn-primary text-sm"
-            id="save-gallery-btn"
-          >
-            <Save className="w-4 h-4" />
-            {updateMutation.isPending ? 'Saving...' : saved === 'gallery' ? '✓ Saved!' : 'Save Gallery'}
-          </button>
-        )}
+        <button
+          onClick={saveTextEdits}
+          disabled={Object.keys(edits).length === 0 || updateMutation.isPending}
+          className="btn-primary text-sm"
+          id="save-content-btn"
+        >
+          <Save className="w-4 h-4" />
+          {updateMutation.isPending ? 'Saving...' : saved ? '✓ Saved!' : 'Save Changes'}
+        </button>
       </div>
 
       {/* Page tabs */}
       <div className="flex gap-2 flex-wrap">
-        {[...TEXT_PAGES.map((p) => ({ page: p.page, label: p.label })), { page: 'gallery-images', label: 'Gallery Images' }].map(({ page, label }) => (
+        {TEXT_PAGES.map(({ page, label }) => (
           <button
             key={page}
             id={`content-tab-${page}`}
@@ -258,63 +206,8 @@ export default function ContentPage() {
         ))}
       </div>
 
-      {/* ── Gallery Tab ── */}
-      {isGallery && (
-        <div className="space-y-6">
-          <div className="card space-y-4">
-            <h2 className="font-semibold text-cocoa flex items-center gap-2">
-              <ImageIcon className="w-4 h-4 text-brand-400" /> Upload Images
-            </h2>
-            <ImageUploader
-              id="gallery-uploader"
-              label=""
-              multiple={true}
-              aspectClass="h-36 w-full"
-              onUploaded={addGalleryImage}
-              onMultipleUploaded={addMultipleGalleryImages}
-            />
-          </div>
-
-          {galleryImages.length > 0 && (
-            <div className="card space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-cocoa">Gallery ({galleryImages.length} images)</h2>
-                <span className="text-cocoa/40 text-xs select-none">💡 Drag and drop items to re-order</span>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {galleryImages.map((img, i) => (
-                  <div
-                    key={img.url}
-                    draggable
-                    onDragStart={() => handleDragStart(i)}
-                    onDragEnter={() => handleDragEnter(i)}
-                    onDragEnd={handleDragEnd}
-                    onDragOver={(e) => e.preventDefault()}
-                    className={clsx(
-                      'relative group rounded-xl overflow-hidden aspect-square border cursor-grab active:cursor-grabbing transition-all duration-200 select-none bg-admin-bg',
-                      draggedIndex === i ? 'opacity-40 border-dashed border-brand-500 scale-95' : 'border-admin-border',
-                    )}
-                  >
-                    <img src={resolveImageUrl(img.url)} alt="" className="w-full h-full object-cover pointer-events-none" loading="lazy" />
-                    <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center pointer-events-auto">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); removeGalleryImage(i); }}
-                        className="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-all text-white shadow-md"
-                        aria-label={`Remove image ${i + 1}`}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
       {/* ── Text + Image pages ── */}
-      {!isGallery && !isLoading && pageConfig && (
+      {!isLoading && pageConfig && (
         <div className="space-y-4">
           {/* Image fields */}
           {pageConfig.imageKeys.length > 0 && (

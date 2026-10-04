@@ -26,10 +26,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# Uploads and images
+# Uploads
 public/uploads/
-public/images/
-*.png
-*.jpg
-*.jpeg
-*.webp
