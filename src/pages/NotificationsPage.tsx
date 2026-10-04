@@ -1,17 +1,30 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Bell, CheckCheck, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Bell, CheckCheck, Eye, ArrowRight } from 'lucide-react';
 import { adminNotificationsApi } from '../lib/api';
 import { formatAWST } from '../contexts/AdminAuthContext';
 import clsx from 'clsx';
 
-interface Notification { _id: string; type: string; message: string; readAt: string | null; createdAt: string }
+interface Notification {
+  _id: string;
+  type: string;
+  message: string;
+  relatedAppointmentId?: any;
+  readAt: string | null;
+  createdAt: string;
+}
 
 const TYPE_ICONS: Record<string, string> = {
-  new_booking: '📅', cancellation: '❌', reschedule: '🔄', waitlist_opened: '✅',
+  new_booking: '📅',
+  cancellation: '❌',
+  reschedule: '🔄',
+  waitlist_opened: '✅',
 };
 
 export default function NotificationsPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
   const { data, isLoading } = useQuery({
     queryKey: ['admin-notifications'],
     queryFn: () => adminNotificationsApi.list(),
@@ -29,6 +42,15 @@ export default function NotificationsPage() {
     mutationFn: () => adminNotificationsApi.markAllRead(),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-notifications'] }),
   });
+
+  function handleCardClick(n: Notification) {
+    if (!n.readAt) {
+      readMutation.mutate(n._id);
+    }
+    if (['new_booking', 'cancellation', 'reschedule'].includes(n.type) || n.relatedAppointmentId) {
+      navigate('/appointments');
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -56,18 +78,49 @@ export default function NotificationsPage() {
       ) : (
         <div className="space-y-2">
           {notifications.map((n) => (
-            <div key={n._id} className={clsx('card transition-all', !n.readAt ? 'border-brand-500/30 bg-brand-500/5' : 'opacity-60')}>
+            <div
+              key={n._id}
+              role="button"
+              tabIndex={0}
+              onClick={() => handleCardClick(n)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardClick(n); } }}
+              className={clsx(
+                'card transition-all cursor-pointer select-none hover:shadow-md hover:border-brand-500/40 active:scale-[0.99]',
+                !n.readAt ? 'border-brand-500/40 bg-brand-500/10' : 'opacity-65 hover:opacity-100 hover:bg-admin-bg',
+              )}
+            >
               <div className="flex items-start gap-3">
-                <span className="text-xl flex-shrink-0" aria-hidden="true">{TYPE_ICONS[n.type] ?? '🔔'}</span>
+                <span className="text-2xl flex-shrink-0 mt-0.5" aria-hidden="true">{TYPE_ICONS[n.type] ?? '🔔'}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-cocoa text-sm">{n.message}</p>
-                  <p className="text-cocoa/30 text-xs mt-1">{formatAWST(n.createdAt)}</p>
+                  <div className="flex items-center gap-2">
+                    <p className={clsx('text-sm', !n.readAt ? 'text-cocoa font-semibold' : 'text-cocoa/90')}>
+                      {n.message}
+                    </p>
+                    {!n.readAt && (
+                      <span className="w-2 h-2 rounded-full bg-brand-400 flex-shrink-0 animate-pulse" title="Unread" />
+                    )}
+                  </div>
+                  <p className="text-cocoa/40 text-xs mt-1">{formatAWST(n.createdAt)}</p>
                 </div>
-                {!n.readAt && (
-                  <button onClick={() => readMutation.mutate(n._id)} className="btn-ghost p-1.5 flex-shrink-0" aria-label="Mark as read">
-                    <Eye className="w-4 h-4" />
-                  </button>
-                )}
+                <div className="flex items-center gap-1 flex-shrink-0 self-center">
+                  {!n.readAt && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        readMutation.mutate(n._id);
+                      }}
+                      className="btn-ghost p-1.5 hover:text-brand-300"
+                      aria-label="Mark as read"
+                      title="Mark as read"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  )}
+                  <div className="text-cocoa/30 hover:text-cocoa p-1">
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </div>
               </div>
             </div>
           ))}

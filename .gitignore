@@ -25,3 +25,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Uploads and images
+public/uploads/
+public/images/
+*.png
+*.jpg
+*.jpeg
+*.webp
