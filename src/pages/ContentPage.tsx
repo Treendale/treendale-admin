@@ -11,12 +11,12 @@ const TEXT_PAGES = [
     page: 'home',
     label: 'Home Page',
     imageKeys: [
-      { key: 'hero_image_url',     label: 'Hero Background Image', aspect: 'h-40 w-full' },
-      { key: 'interior_image_url', label: 'Texture / Salon Image', aspect: 'h-40 w-full' },
+      { key: 'hero_image_url',     label: 'Hero Background Image', aspect: 'h-40 w-full', objectFit: 'cover' as const },
+      { key: 'interior_image_url', label: 'Texture / Salon Section Image', aspect: 'h-40 w-full', objectFit: 'cover' as const },
     ],
     textKeys: [
-      'hero_heading',
       'hero_tagline',
+      'hero_heading',
       'hero_subheading',
       'hero_cta',
       'intro_heading',
@@ -35,7 +35,7 @@ const TEXT_PAGES = [
     page: 'services',
     label: 'Services Page',
     imageKeys: [
-      { key: 'hero_image_url', label: 'Services Hero Banner', aspect: 'h-40 w-full' },
+      { key: 'hero_image_url', label: 'Services Hero Banner', aspect: 'h-40 w-full', objectFit: 'cover' as const },
     ],
     textKeys: [
       'hero_title',
@@ -46,7 +46,7 @@ const TEXT_PAGES = [
     page: 'about',
     label: 'About Page',
     imageKeys: [
-      { key: 'hero_image_url', label: 'About Hero Banner', aspect: 'h-40 w-full' },
+      { key: 'hero_image_url', label: 'About Hero Banner', aspect: 'h-40 w-full', objectFit: 'cover' as const },
     ],
     textKeys: [
       'hero_title',
@@ -71,7 +71,7 @@ const TEXT_PAGES = [
     page: 'contact',
     label: 'Contact & Socials',
     imageKeys: [
-      { key: 'hero_image_url', label: 'Contact Hero Banner', aspect: 'h-40 w-full' },
+      { key: 'hero_image_url', label: 'Contact Hero Banner', aspect: 'h-40 w-full', objectFit: 'cover' as const },
     ],
     textKeys: [
       'hero_title',
@@ -100,7 +100,7 @@ const TEXT_PAGES = [
     page: 'policies',
     label: 'Policies Page',
     imageKeys: [
-      { key: 'hero_image_url', label: 'Policies Hero Banner', aspect: 'h-40 w-full' },
+      { key: 'hero_image_url', label: 'Policies Hero Banner', aspect: 'h-40 w-full', objectFit: 'cover' as const },
     ],
     textKeys: [
       'hero_title',
@@ -117,8 +117,8 @@ const TEXT_PAGES = [
     page: 'global',
     label: 'Logos & Branding',
     imageKeys: [
-      { key: 'logo_main_url',   label: 'Main Header Logo', aspect: 'h-36 w-full' },
-      { key: 'logo_footer_url', label: 'Footer Logo',      aspect: 'h-36 w-full' },
+      { key: 'logo_light_url', label: 'Light Logo (For Dark Hero / Transparent Navbar)', aspect: 'h-36 w-full', darkPreview: true, objectFit: 'contain' as const },
+      { key: 'logo_dark_url',  label: 'Dark Logo (For White Header / Scrolled Navbar)',  aspect: 'h-36 w-full', objectFit: 'contain' as const },
     ],
     textKeys: ['footer_tagline', 'footer_cta_text', 'footer_attribution'],
   },
@@ -197,8 +197,8 @@ export default function ContentPage() {
             onClick={() => { setActivePage(page); setEdits({}); }}
             className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all capitalize min-h-[44px] border ${
               activePage === page
-                ? 'bg-brand-500 text-cocoa border-brand-500 shadow-md shadow-brand-500/10'
-                : 'border-admin-border text-cocoa/50 hover:text-white hover:border-white/20'
+                ? 'bg-brand-500 text-white border-brand-500 shadow-md shadow-brand-500/10'
+                : 'border-admin-border text-cocoa/70 bg-white hover:text-brand-600 hover:border-brand-300 hover:bg-brand-50/60'
             }`}
           >
             {label}
@@ -217,19 +217,21 @@ export default function ContentPage() {
               </h2>
               {/* Render image uploaders side by side on desktop */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {pageConfig.imageKeys.map(({ key, label, aspect }) => (
+                {pageConfig.imageKeys.map(({ key, label, aspect, darkPreview, objectFit }) => (
                   <ImageUploader
                     key={key}
                     id={`img-${key}`}
                     label={label}
                     aspectClass={aspect}
+                    darkPreview={darkPreview}
+                    objectFitClass={objectFit === 'contain' ? 'object-contain p-3' : 'object-cover'}
                     currentUrl={resolveImageUrl(merged[key]) || undefined}
                     onUploaded={(url) => updateImageUrl(key, url)}
                   />
                 ))}
               </div>
               {pageConfig.imageKeys.some(({ key }) => edits[key] !== undefined) && (
-                <p className="text-brand-300 text-xs">● Image changes — click Save to apply</p>
+                <p className="text-brand-500 text-xs font-medium">● Image changes pending — click Save Changes above to apply</p>
               )}
             </div>
           )}
