@@ -105,12 +105,7 @@ const TEXT_PAGES = [
     textKeys: [
       'hero_title',
       'hero_subtitle',
-      'notice_title',
-      'notice_text',
-      'arrival_title',
-      'arrival_text',
-      'booking_terms_title',
-      'booking_terms_text',
+      'policy_content',
     ],
   },
   {
@@ -242,11 +237,11 @@ export default function ContentPage() {
               <label htmlFor={`content-${key}`} className="label">
                 {key.replace(/_/g, ' ').toUpperCase()}
               </label>
-              {key.includes('text') || key.includes('intro') || key.includes('bio') || key.includes('desc') || key.includes('subheading') || key.includes('tagline') || key.includes('subtext') ? (
+              {key.includes('text') || key.includes('intro') || key.includes('bio') || key.includes('desc') || key.includes('subheading') || key.includes('tagline') || key.includes('subtext') || key.includes('content') ? (
                 <textarea
                   id={`content-${key}`}
-                  rows={4}
-                  className="input resize-none"
+                  rows={key === 'policy_content' ? 14 : 4}
+                  className="input resize-y"
                   value={merged[key] ?? ''}
                   onChange={(e) => setEdits((p) => ({ ...p, [key]: e.target.value }))}
                 />
