@@ -77,7 +77,7 @@ export default function LoginPage() {
                   required
                 />
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cocoa/30" aria-hidden="true" />
-                <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-cocoa/30 hover:text-white" aria-label={showPw ? 'Hide password' : 'Show password'}>
+                <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-cocoa/40 hover:text-brand-600 transition-colors" aria-label={showPw ? 'Hide password' : 'Show password'}>
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>

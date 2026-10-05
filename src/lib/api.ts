@@ -6,9 +6,29 @@ export const BACKEND_URL = BASE_URL.replace('/api/v1', '');
 
 export function resolveImageUrl(url?: string): string {
   if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+  if (url.startsWith('data:')) return url;
+
+  // Bundled default static images in public/images/
+  if (url.startsWith('/images/')) {
     return url;
   }
+
+  // Uploaded files are served by the backend at /uploads
+  if (url.startsWith('/uploads/')) {
+    return `${BACKEND_URL}${url}`;
+  }
+
+  // If it's a localhost or 127.0.0.1 URL (from previous or dev uploads), rewrite to current BACKEND_URL
+  if (url.startsWith('http://localhost:5000') || url.startsWith('http://127.0.0.1:5000')) {
+    const relativePath = url.replace(/^https?:\/\/(localhost|127\.0\.0\.1):5000/, '');
+    if (relativePath.startsWith('/images/')) return relativePath;
+    return `${BACKEND_URL}${relativePath.startsWith('/') ? '' : '/'}${relativePath}`;
+  }
+
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+
   return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
@@ -71,6 +91,7 @@ export const adminSettingsApi = {
 export const adminContentApi = {
   getPage: (page: string) => api.get(`/content/${page}`),
   update: (page: string, key: string, value: string) => api.patch(`/content/${page}/${key}`, { value }),
+  bulkUpdate: (page: string, content: Record<string, string>) => api.put(`/content/${page}`, { content }),
 };
 
 export const adminNotificationsApi = {

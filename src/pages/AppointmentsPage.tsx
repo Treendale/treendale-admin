@@ -143,7 +143,7 @@ export default function AppointmentsPage() {
         <div className="flex items-center gap-2">
           <div className="flex border border-admin-border rounded-lg overflow-hidden">
             {(['day', 'week'] as const).map((v) => (
-              <button key={v} onClick={() => setView(v)} className={clsx('px-4 py-2 text-sm font-medium transition-colors capitalize min-h-[44px]', view === v ? 'bg-brand-500/20 text-blush' : 'text-cocoa/50 hover:text-white')}>
+              <button key={v} onClick={() => setView(v)} className={clsx('px-4 py-2 text-sm font-medium transition-colors capitalize min-h-[44px]', view === v ? 'bg-brand-500/20 text-brand-600' : 'text-cocoa/70 hover:text-brand-600 hover:bg-brand-50/50')}>
                 {v}
               </button>
             ))}

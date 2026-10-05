@@ -10,6 +10,8 @@ interface ImageUploaderProps {
   label?: string;
   id?: string;
   aspectClass?: string; // e.g. 'aspect-video' or 'aspect-square' or 'h-36 w-full'
+  darkPreview?: boolean;
+  objectFitClass?: string;
   multiple?: boolean;
 }
 
@@ -20,6 +22,8 @@ export default function ImageUploader({
   label = 'Image',
   id = 'img-uploader',
   aspectClass = 'aspect-video',
+  darkPreview = false,
+  objectFitClass = 'object-cover',
   multiple = false,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -73,6 +77,7 @@ export default function ImageUploader({
         className={clsx(
           'relative rounded-xl border-2 border-dashed transition-all overflow-hidden flex items-center justify-center',
           aspectClass,
+          darkPreview ? 'bg-[#2A0A10]' : 'bg-[#FAF4F0]/60',
           dragging ? 'border-brand-400 bg-brand-500/10' : 'border-admin-border hover:border-brand-500/40',
         )}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -81,7 +86,7 @@ export default function ImageUploader({
       >
         {currentUrl ? (
           <>
-            <img src={currentUrl} alt="Preview" className="w-full h-full object-cover" />
+            <img src={currentUrl} alt="Preview" className={clsx('w-full h-full', objectFitClass)} />
             <div className="absolute inset-0 bg-black/45 opacity-0 hover:opacity-100 transition-all flex items-center justify-center gap-3">
               <button
                 type="button"

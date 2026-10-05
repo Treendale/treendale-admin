@@ -143,3 +143,11 @@ button[type="submit"] *,
   color: #ffffff !important;
 }
 
+/* Tab and interactive button hover contrast safeguards */
+button.border-admin-border:hover {
+  color: #701a2c !important;
+  background-color: #faf0f1 !important;
+  border-color: #ebbac2 !important;
+}
+
+
