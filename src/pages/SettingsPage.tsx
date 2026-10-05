@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, Plus, Trash2, Settings, Clock, Ban } from 'lucide-react';
+import { Save, Plus, Trash2, Settings, Clock, Ban, MapPin, ExternalLink } from 'lucide-react';
 import { adminSettingsApi } from '../lib/api';
 import clsx from 'clsx';
 import AdminDatePicker from '../components/AdminDatePicker';
@@ -21,7 +21,12 @@ interface SettingsData {
   currency: string;
   address: string;
   addressVisibility: 'public' | 'shared_after_confirmation';
+  mapLatitude?: number;
+  mapLongitude?: number;
+  mapPlaceName?: string;
+  mapEmbedUrl?: string;
   categories: string[];
+  cancellationWindowHours?: number;
 }
 
 const emptyBlockedSlot: Omit<BlockedSlot, '_id'> = { date: '', startTime: '09:00', endTime: '10:00', reason: '' };
@@ -108,7 +113,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-cocoa flex items-center gap-2">
           <Settings className="w-6 h-6" aria-hidden="true" /> Business Settings
         </h1>
         <div className="flex flex-col items-end gap-1">
@@ -126,7 +131,7 @@ export default function SettingsPage() {
 
       {/* ── General ── */}
       <div className="card space-y-4">
-        <h2 className="font-semibold text-white">General</h2>
+        <h2 className="font-semibold text-cocoa">General</h2>
 
         <div>
           <label htmlFor="booking-window" className="label">Booking Window (days ahead)</label>
@@ -140,7 +145,23 @@ export default function SettingsPage() {
               value={form.bookingWindowDays ?? 10}
               onChange={(e) => setForm({ ...form, bookingWindowDays: Number(e.target.value) })}
             />
-            <span className="text-white/40 text-xs">Clients can book up to this many days from today</span>
+            <span className="text-cocoa/40 text-xs">Clients can book up to this many days from today</span>
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="cancellation-window" className="label">Cancellation Window (hours)</label>
+          <div className="flex items-center gap-3">
+            <input
+              id="cancellation-window"
+              type="number"
+              min={0}
+              max={720}
+              className="input w-32"
+              value={form.cancellationWindowHours ?? 24}
+              onChange={(e) => setForm({ ...form, cancellationWindowHours: Number(e.target.value) })}
+            />
+            <span className="text-cocoa/40 text-xs">Clients can cancel their bookings up to this many hours before the slot</span>
           </div>
         </div>
 
@@ -158,32 +179,138 @@ export default function SettingsPage() {
               <option value={45}>45 minutes</option>
               <option value={60}>60 minutes</option>
             </select>
-            <span className="text-white/40 text-xs">Time interval increments offered between booking slots</span>
+            <span className="text-cocoa/40 text-xs">Time interval increments offered between booking slots</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Salon Location & Pinpoint Map ── */}
+      <div className="card space-y-4">
+        <div className="flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-brand-400" aria-hidden="true" />
+          <div>
+            <h2 className="font-semibold text-cocoa">Salon Location &amp; Pinpoint Map</h2>
+            <p className="text-cocoa/40 text-xs">
+              Configure the exact studio address and map pin. This map is displayed on the user's booking confirmation screen.
+            </p>
           </div>
         </div>
 
-        <div>
-          <label htmlFor="salon-address" className="label">Salon Address</label>
-          <input
-            id="salon-address"
-            type="text"
-            className="input"
-            placeholder="Not stored in code — set here"
-            value={form.address ?? ''}
-            onChange={(e) => setForm({ ...form, address: e.target.value })}
-          />
-          <p className="text-white/30 text-xs mt-1">Never hardcoded. Only stored in the database.</p>
+        <div className="space-y-3">
+          <div>
+            <label htmlFor="salon-place-name" className="label text-xs">Studio / Business Name</label>
+            <input
+              id="salon-place-name"
+              type="text"
+              className="input text-sm"
+              placeholder="e.g. Treendale Threading & Beauty"
+              value={form.mapPlaceName ?? 'Treendale Threading & Beauty'}
+              onChange={(e) => setForm({ ...form, mapPlaceName: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="salon-address" className="label text-xs">Street Address</label>
+            <input
+              id="salon-address"
+              type="text"
+              className="input text-sm"
+              placeholder="e.g. Shop 2, 10 The Promenade, Australind WA 6233"
+              value={form.address ?? ''}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="map-latitude" className="label text-xs">Pin Latitude</label>
+              <input
+                id="map-latitude"
+                type="number"
+                step="any"
+                className="input text-sm font-mono"
+                placeholder="-33.2847"
+                value={form.mapLatitude ?? -33.2847}
+                onChange={(e) => setForm({ ...form, mapLatitude: e.target.value ? parseFloat(e.target.value) : undefined })}
+              />
+            </div>
+            <div>
+              <label htmlFor="map-longitude" className="label text-xs">Pin Longitude</label>
+              <input
+                id="map-longitude"
+                type="number"
+                step="any"
+                className="input text-sm font-mono"
+                placeholder="115.7196"
+                value={form.mapLongitude ?? 115.7196}
+                onChange={(e) => setForm({ ...form, mapLongitude: e.target.value ? parseFloat(e.target.value) : undefined })}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2 items-center flex-wrap pt-1">
+            <button
+              type="button"
+              onClick={() => {
+                setForm({
+                  ...form,
+                  mapLatitude: -33.2847,
+                  mapLongitude: 115.7196,
+                  address: form.address || 'Shop 2, 10 The Promenade, Australind WA 6233',
+                  mapPlaceName: form.mapPlaceName || 'Treendale Threading & Beauty',
+                });
+              }}
+              className="btn-secondary text-xs py-1.5 px-3 min-h-[36px]"
+            >
+              Set Treendale Australind WA Coordinates
+            </button>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                (form.mapLatitude && form.mapLongitude) ? `${form.mapLatitude},${form.mapLongitude}` : (form.address || 'Treendale Australind WA')
+              )}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-brand-300 hover:text-brand-200 flex items-center gap-1 ml-auto"
+            >
+              Open in Google Maps <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+
+          {/* Live Map Preview */}
+          <div className="mt-4 pt-4 border-t border-admin-border">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-cocoa/60 uppercase tracking-wider">Live Pinpoint Map Preview</span>
+              <span className="text-xs text-cocoa/40">Shown on user confirmation</span>
+            </div>
+            <div className="rounded-xl overflow-hidden border border-admin-border bg-admin-bg relative aspect-video sm:aspect-[21/9] max-h-56">
+              <iframe
+                title="Salon Pinpoint Map Preview"
+                width="100%"
+                height="100%"
+                className="border-0 w-full h-full"
+                loading="lazy"
+                src={
+                  form.mapEmbedUrl ||
+                  `https://maps.google.com/maps?q=${
+                    (form.mapLatitude !== undefined && form.mapLongitude !== undefined)
+                      ? `${form.mapLatitude},${form.mapLongitude}`
+                      : encodeURIComponent(form.address || 'Treendale WA 6233')
+                  }&hl=en&z=16&output=embed`
+                }
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* ── Dynamic Categories ── */}
       <div className="card space-y-4">
-        <h2 className="font-semibold text-white">Service Categories</h2>
-        <p className="text-white/40 text-xs">Manage dynamic service categories shown in the booking page tabs.</p>
+        <h2 className="font-semibold text-cocoa">Service Categories</h2>
+        <p className="text-cocoa/40 text-xs">Manage dynamic service categories shown in the booking page tabs.</p>
         
         <div className="flex flex-wrap gap-2">
           {(form.categories ?? []).map((cat, i) => (
-            <span key={cat} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-admin-bg border border-admin-border text-sm text-white">
+            <span key={cat} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-admin-bg border border-admin-border text-sm text-cocoa">
               {cat}
               <button
                 type="button"
@@ -227,7 +354,7 @@ export default function SettingsPage() {
                 if (el) el.value = '';
               }
             }}
-            className="btn-primary text-xs py-2 px-3 flex items-center gap-1 text-white-force min-h-[38px]"
+            className="btn-primary text-xs py-2 px-3 flex items-center gap-1 text-white min-h-[38px]"
           >
             <Plus className="w-4 h-4" /> Add
           </button>
@@ -236,8 +363,8 @@ export default function SettingsPage() {
 
       {/* ── Business Hours ── */}
       <div className="card space-y-4">
-        <h2 className="font-semibold text-white">Business Hours</h2>
-        <p className="text-white/40 text-xs">Click a day to toggle it on/off. Adjust times for each active day.</p>
+        <h2 className="font-semibold text-cocoa">Business Hours</h2>
+        <p className="text-cocoa/40 text-xs">Click a day to toggle it on/off. Adjust times for each active day.</p>
         <div className="space-y-2">
           {DAYS.map((day, i) => {
             const entry = form.businessHours?.find((h) => h.dayOfWeek === i);
@@ -248,7 +375,7 @@ export default function SettingsPage() {
                   onClick={() => toggleDay(i)}
                   className={clsx(
                     'w-12 py-1.5 rounded-lg text-xs font-medium border transition-all min-h-[44px]',
-                    active ? 'bg-brand-500/20 text-blush border-brand-500/30' : 'text-white/30 border-admin-border',
+                    active ? 'bg-brand-500/20 text-blush border-brand-500/30' : 'text-cocoa/30 border-admin-border',
                   )}
                   aria-pressed={active}
                   aria-label={`Toggle ${day}`}
@@ -267,7 +394,7 @@ export default function SettingsPage() {
                       })}
                       aria-label={`${day} start time`}
                     />
-                    <span className="text-white/30 text-sm">–</span>
+                    <span className="text-cocoa/30 text-sm">–</span>
                     <input
                       type="time"
                       className="input w-32 text-sm"
@@ -288,8 +415,8 @@ export default function SettingsPage() {
 
       {/* ── Closures ── */}
       <div className="card space-y-4">
-        <h2 className="font-semibold text-white">Closures &amp; Holidays</h2>
-        <p className="text-white/40 text-xs">Add WA public holidays or one-off closure dates. No slots will be offered on these dates.</p>
+        <h2 className="font-semibold text-cocoa">Closures &amp; Holidays</h2>
+        <p className="text-cocoa/40 text-xs">Add WA public holidays or one-off closure dates. No slots will be offered on these dates.</p>
 
         <div className="flex gap-2 flex-wrap items-center">
           <AdminDatePicker
@@ -320,7 +447,7 @@ export default function SettingsPage() {
           <div className="space-y-2">
             {form.closures!.map((c, i) => (
               <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-admin-bg border border-admin-border">
-                <span className="text-white/50 text-sm flex-1">{c.date} — {c.reason}</span>
+                <span className="text-cocoa/50 text-sm flex-1">{c.date} — {c.reason}</span>
                 <button
                   onClick={() => removeClosure(i)}
                   className="btn-ghost p-1.5 hover:text-red-400"
@@ -338,9 +465,9 @@ export default function SettingsPage() {
       <div className="card space-y-4">
         <div className="flex items-center gap-2">
           <Ban className="w-4 h-4 text-brand-400" aria-hidden="true" />
-          <h2 className="font-semibold text-white">Blocked Time Slots</h2>
+          <h2 className="font-semibold text-cocoa">Blocked Time Slots</h2>
         </div>
-        <p className="text-white/40 text-xs">
+        <p className="text-cocoa/40 text-xs">
           Block a specific time window on a date — e.g. "tomorrow 2 pm – 4 pm". Clients won't be able to book any slot that overlaps this window.
         </p>
 
@@ -369,7 +496,7 @@ export default function SettingsPage() {
 
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <Clock className="w-4 h-4 text-white/30 flex-shrink-0" aria-hidden="true" />
+              <Clock className="w-4 h-4 text-cocoa/30 flex-shrink-0" aria-hidden="true" />
               <input
                 id="blocked-start-time"
                 type="time"
@@ -378,7 +505,7 @@ export default function SettingsPage() {
                 onChange={(e) => setNewBlockedSlot({ ...newBlockedSlot, startTime: e.target.value })}
                 aria-label="Block start time"
               />
-              <span className="text-white/30 text-sm flex-shrink-0">to</span>
+              <span className="text-cocoa/30 text-sm flex-shrink-0">to</span>
               <input
                 id="blocked-end-time"
                 type="time"
@@ -414,10 +541,10 @@ export default function SettingsPage() {
                   <Ban className="w-4 h-4 text-brand-400" aria-hidden="true" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium">{bs.date}</p>
-                  <p className="text-white/40 text-xs">
+                  <p className="text-cocoa text-sm font-medium">{bs.date}</p>
+                  <p className="text-cocoa/40 text-xs">
                     {bs.startTime} – {bs.endTime}
-                    {bs.reason && <span className="ml-2 text-white/30">· {bs.reason}</span>}
+                    {bs.reason && <span className="ml-2 text-cocoa/30">· {bs.reason}</span>}
                   </p>
                 </div>
                 <button
@@ -433,7 +560,7 @@ export default function SettingsPage() {
         )}
 
         {(form.blockedSlots ?? []).length === 0 && (
-          <p className="text-white/20 text-xs text-center py-2">No blocked slots configured.</p>
+          <p className="text-cocoa/20 text-xs text-center py-2">No blocked slots configured.</p>
         )}
       </div>
     </div>

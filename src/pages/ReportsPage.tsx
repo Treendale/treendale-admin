@@ -17,7 +17,7 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-white">Reports</h1>
+      <h1 className="text-2xl font-bold text-cocoa">Reports</h1>
 
       {/* Date range */}
       <div className="card flex flex-wrap gap-4 items-end">
@@ -45,8 +45,8 @@ export default function ReportsPage() {
               { label: 'No-shows', value: report.noShowBookings },
             ].map(({ label, value }) => (
               <div key={label} className="stat-card">
-                <span className="text-white/40 text-xs uppercase tracking-wider">{label}</span>
-                <span className="text-3xl font-bold text-white">{value}</span>
+                <span className="text-cocoa/40 text-xs uppercase tracking-wider">{label}</span>
+                <span className="text-3xl font-bold text-cocoa">{value}</span>
               </div>
             ))}
           </div>
@@ -54,11 +54,11 @@ export default function ReportsPage() {
           {/* Rates */}
           <div className="grid grid-cols-2 gap-4">
             <div className="stat-card">
-              <span className="text-white/40 text-xs uppercase tracking-wider">Cancellation Rate</span>
+              <span className="text-cocoa/40 text-xs uppercase tracking-wider">Cancellation Rate</span>
               <span className="text-3xl font-bold text-yellow-300">{(report.cancellationRate * 100).toFixed(1)}%</span>
             </div>
             <div className="stat-card">
-              <span className="text-white/40 text-xs uppercase tracking-wider">No-show Rate</span>
+              <span className="text-cocoa/40 text-xs uppercase tracking-wider">No-show Rate</span>
               <span className="text-3xl font-bold text-red-300">{(report.noShowRate * 100).toFixed(1)}%</span>
             </div>
           </div>
@@ -66,7 +66,7 @@ export default function ReportsPage() {
           {/* Bookings by day chart */}
           {report.bookingsByDay?.length > 0 && (
             <div className="card">
-              <h2 className="font-semibold text-white mb-4">Bookings per Day</h2>
+              <h2 className="font-semibold text-cocoa mb-4">Bookings per Day</h2>
               <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={report.bookingsByDay} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
@@ -83,15 +83,15 @@ export default function ReportsPage() {
           {/* Most booked services */}
           {report.mostBookedServices?.length > 0 && (
             <div className="card">
-              <h2 className="font-semibold text-white mb-4">Most Booked Services</h2>
+              <h2 className="font-semibold text-cocoa mb-4">Most Booked Services</h2>
               <div className="space-y-3">
                 {report.mostBookedServices.map(({ serviceName, count }: { serviceName: string; count: number }, i: number) => (
                   <div key={serviceName} className="flex items-center gap-3">
-                    <span className="text-white/30 text-xs w-4">{i + 1}</span>
+                    <span className="text-cocoa/30 text-xs w-4">{i + 1}</span>
                     <div className="flex-1">
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-white">{serviceName}</span>
-                        <span className="text-white/40">{count}</span>
+                        <span className="text-cocoa">{serviceName}</span>
+                        <span className="text-cocoa/40">{count}</span>
                       </div>
                       <div className="h-1.5 bg-admin-border rounded-full overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-brand-500 to-blush rounded-full" style={{ width: `${(count / report.mostBookedServices[0].count) * 100}%` }} />

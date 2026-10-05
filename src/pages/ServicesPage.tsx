@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Plus, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
-import { adminServicesApi, adminSettingsApi } from '../lib/api';
+import { Plus, Edit, Trash2, CheckCircle, XCircle, X } from 'lucide-react';
+import { adminServicesApi, adminSettingsApi, resolveImageUrl } from '../lib/api';
 import { formatPrice } from '../contexts/AdminAuthContext';
 import ImageUploader from '../components/ImageUploader';
 
@@ -52,7 +52,7 @@ export default function ServicesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Services</h1>
+        <h1 className="text-2xl font-bold text-cocoa">Services</h1>
         <button onClick={() => setEditing({ active: true })} className="btn-primary text-sm">
           <Plus className="w-4 h-4" /> Add Service
         </button>
@@ -64,20 +64,20 @@ export default function ServicesPage() {
         <div className="space-y-6">
           {categories.map((cat) => (
             <div key={cat}>
-              <h2 className="font-semibold text-white/60 text-sm uppercase tracking-wider mb-3">{cat}</h2>
+              <h2 className="font-semibold text-cocoa/60 text-sm uppercase tracking-wider mb-3">{cat}</h2>
               <div className="space-y-2">
                 {(grouped[cat] ?? []).map((svc) => (
                   <div key={svc._id} className={`card flex items-center gap-4 flex-wrap ${!svc.active ? 'opacity-50' : ''}`}>
                     {svc.imageUrl ? (
-                      <img src={svc.imageUrl} alt={svc.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-admin-border" />
+                      <img src={resolveImageUrl(svc.imageUrl)} alt={svc.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-admin-border" />
                     ) : (
                       <div className="w-14 h-14 rounded-xl bg-brand-500/10 flex items-center justify-center flex-shrink-0 border border-admin-border">
                         <span className="text-brand-400 text-lg font-bold">{svc.name[0]}</span>
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-white font-medium">{svc.name}</p>
-                      <p className="text-white/40 text-xs mt-0.5">{svc.durationMinutes} min · {formatPrice(svc.price)}</p>
+                      <p className="text-cocoa font-medium">{svc.name}</p>
+                      <p className="text-cocoa/40 text-xs mt-0.5">{svc.durationMinutes} min · {formatPrice(svc.price)}</p>
                     </div>
                     {svc.active ? <CheckCircle className="w-4 h-4 text-green-400" /> : <XCircle className="w-4 h-4 text-red-400" />}
                     <div className="flex gap-2">
@@ -90,7 +90,7 @@ export default function ServicesPage() {
                     </div>
                   </div>
                 ))}
-                {(grouped[cat] ?? []).length === 0 && <p className="text-white/20 text-sm px-2">No services in this category.</p>}
+                {(grouped[cat] ?? []).length === 0 && <p className="text-cocoa/20 text-sm px-2">No services in this category.</p>}
               </div>
             </div>
           ))}
@@ -100,15 +100,23 @@ export default function ServicesPage() {
       {/* Edit/Create modal */}
       {editing !== null && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="svc-modal-title">
-          <div className="card max-w-md w-full space-y-4 my-4">
-            <h2 id="svc-modal-title" className="font-bold text-white text-lg">{editing._id ? 'Edit Service' : 'New Service'}</h2>
+          <div className="card max-w-md w-full space-y-4 my-4 relative">
+            <button
+              onClick={() => setEditing(null)}
+              aria-label="Close"
+              className="absolute top-0 right-4 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 flex items-center justify-center text-cocoa hover:bg-black/70 transition-all z-10"
+            >
+              <X className="w-4 h-4 text-white" />
+            </button>
+            <h2 id="svc-modal-title" className="font-bold text-lg" style={{ color: '#701a2c' }}>{editing._id ? 'Edit Service' : 'New Service'}</h2>
+
             
             {/* Image upload */}
             <ImageUploader
               id="svc-image-uploader"
               label="Service Image"
               aspectClass="aspect-video"
-              currentUrl={editing.imageUrl || undefined}
+              currentUrl={resolveImageUrl(editing.imageUrl) || undefined}
               onUploaded={(url) => setEditing({ ...editing, imageUrl: url })}
             />
 
@@ -138,7 +146,7 @@ export default function ServicesPage() {
             </div>
             <label className="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" checked={!!editing.active} onChange={(e) => setEditing({ ...editing, active: e.target.checked })} className="w-4 h-4" />
-              <span className="text-white/70 text-sm">Active</span>
+              <span className="text-cocoa/70 text-sm">Active</span>
             </label>
 
             {(createMutation.isError || updateMutation.isError) && (

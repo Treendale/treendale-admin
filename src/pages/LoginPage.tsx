@@ -39,10 +39,10 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 mb-4">
-            <Scissors className="w-7 h-7 text-white" aria-hidden="true" />
+            <Scissors className="w-7 h-7 text-cocoa" aria-hidden="true" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Admin Panel</h1>
-          <p className="text-white/40 text-sm mt-1">Treendale Threading &amp; Beauty</p>
+          <h1 className="text-2xl font-bold text-cocoa">Admin Panel</h1>
+          <p className="text-cocoa/40 text-sm mt-1">Treendale Threading &amp; Beauty</p>
         </div>
 
         <div className="card">
@@ -60,7 +60,7 @@ export default function LoginPage() {
                   autoComplete="email"
                   required
                 />
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" aria-hidden="true" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cocoa/30" aria-hidden="true" />
               </div>
             </div>
             <div>
@@ -76,8 +76,8 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   required
                 />
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" aria-hidden="true" />
-                <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white" aria-label={showPw ? 'Hide password' : 'Show password'}>
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cocoa/30" aria-hidden="true" />
+                <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-cocoa/40 hover:text-brand-600 transition-colors" aria-label={showPw ? 'Hide password' : 'Show password'}>
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -89,7 +89,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-white/20 text-xs mt-6">
+        <p className="text-center text-cocoa/20 text-xs mt-6">
           Staff &amp; admin accounts only. Not for customers.
         </p>
       </div>

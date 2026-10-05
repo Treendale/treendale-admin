@@ -157,7 +157,7 @@ export default function AdminDatePicker({
                     isCurrentMonth && !isSelected && 'text-brand-950/80 hover:bg-brand-500/10 hover:text-brand-900',
                     todayDay && !isSelected && 'ring-1 ring-brand-500/50 text-brand-600 font-bold',
                     // Selected state: forces white color via CSS rule to avoid black-on-pink
-                    isSelected && 'bg-gradient-to-br from-brand-500 to-brand-600 text-white-force font-bold shadow-md shadow-brand-500/20',
+                    isSelected && 'bg-gradient-to-br from-brand-500 to-brand-600 text-white font-bold shadow-md shadow-brand-500/20',
                   )}
                 >
                   {format(day, 'd')}

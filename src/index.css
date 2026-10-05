@@ -126,19 +126,8 @@ select {
   color: rgba(58, 39, 41, 0.3) !important;
 }
 .label {
-  color: rgba(58, 39, 41, 0.6) !important;
+  color: rgba(58, 39, 41, 0.72) !important;
 }
-
-/* Translate text-white classes to Cocoa */
-.text-white { color: #3A2729 !important; }
-.text-white\/90 { color: rgba(58, 39, 41, 0.9) !important; }
-.text-white\/80 { color: rgba(58, 39, 41, 0.8) !important; }
-.text-white\/70 { color: rgba(58, 39, 41, 0.7) !important; }
-.text-white\/60 { color: rgba(58, 39, 41, 0.6) !important; }
-.text-white\/50 { color: rgba(58, 39, 41, 0.5) !important; }
-.text-white\/40 { color: rgba(58, 39, 41, 0.4) !important; }
-.text-white\/30 { color: rgba(58, 39, 41, 0.3) !important; }
-.text-white\/20 { color: rgba(58, 39, 41, 0.2) !important; }
 
 /* Ensure solid buttons/icons are crisp white */
 .btn-primary,
@@ -150,41 +139,15 @@ button[type="submit"] *,
 .bg-brand-500,
 .bg-brand-500 *,
 .bg-brand-600,
-.bg-brand-600 *,
-.badge-confirmed,
-.badge-completed,
-.badge-pending,
-.badge-cancelled,
-.badge-no_show {
+.bg-brand-600 * {
   color: #ffffff !important;
 }
 
-/* Sidebar navigation item states */
-nav a {
-  color: rgba(58, 39, 41, 0.7) !important;
-}
-nav a:hover {
+/* Tab and interactive button hover contrast safeguards */
+button.border-admin-border:hover {
+  color: #701a2c !important;
   background-color: #faf0f1 !important;
-  color: #701a2c !important;
-}
-nav a.active {
-  background-color: rgba(112, 26, 44, 0.08) !important;
-  border-color: rgba(112, 26, 44, 0.15) !important;
-  color: #701a2c !important;
-}
-nav a.active * {
-  color: #701a2c !important;
+  border-color: #ebbac2 !important;
 }
 
-/* Custom badge override to prevent important white color conflict */
-.badge-pending { color: #854d0e !important; }
-.badge-confirmed { color: #166534 !important; }
-.badge-cancelled { color: #991b1b !important; }
-.badge-completed { color: #1e40af !important; }
-.badge-no_show { color: #374151 !important; }
-
-/* Force white text on solid/dark elements */
-.text-white-force {
-  color: #ffffff !important;
-}
 
