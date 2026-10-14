@@ -2,13 +2,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Plus, Edit, Trash2, CheckCircle, XCircle, X } from 'lucide-react';
 import { adminServicesApi, adminSettingsApi, resolveImageUrl } from '../lib/api';
-import { formatPrice } from '../contexts/AdminAuthContext';
+import { formatPrice, formatDuration } from '../contexts/AdminAuthContext';
+import { useToast } from '../contexts/ToastContext';
 import ImageUploader from '../components/ImageUploader';
 
 interface Service { _id: string; name: string; category: string; durationMinutes: number; price: number; active: boolean; description: string; imageUrl?: string }
 
 export default function ServicesPage() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [editing, setEditing] = useState<Partial<Service> | null>(null);
 
   const { data, isLoading } = useQuery({
@@ -25,21 +27,49 @@ export default function ServicesPage() {
 
   const createMutation = useMutation({
     mutationFn: (d: unknown) => adminServicesApi.create(d),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['admin-services'] }); setEditing(null); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-services'] });
+      setEditing(null);
+      toast.success('Service created successfully.');
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error?.message ?? 'Failed to create service.');
+    },
   });
+
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: unknown }) => adminServicesApi.update(id, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['admin-services'] }); setEditing(null); },
+    onSuccess: (_res, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-services'] });
+      setEditing(null);
+      const isImgRemoved = (variables.data as any)?.imageUrl === '';
+      toast.success(isImgRemoved ? 'Service updated and image removed successfully.' : 'Service updated successfully.');
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error?.message ?? 'Failed to update service.');
+    },
   });
+
   const deleteMutation = useMutation({
     mutationFn: (id: string) => adminServicesApi.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-services'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-services'] });
+      toast.success('Service deactivated.');
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error?.message ?? 'Failed to deactivate service.');
+    },
   });
 
   function handleSave() {
     if (!editing) return;
     const { _id, ...rest } = editing;
-    const payload = { ...rest, price: Number(rest.price ?? 0), durationMinutes: Number(rest.durationMinutes ?? 30) };
+    const payload = {
+      ...rest,
+      imageUrl: rest.imageUrl ?? '',
+      price: Number(rest.price ?? 0),
+      durationMinutes: Number(rest.durationMinutes ?? 30)
+    };
     if (_id) updateMutation.mutate({ id: _id, data: payload });
     else createMutation.mutate(payload);
   }
@@ -77,7 +107,7 @@ export default function ServicesPage() {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-cocoa font-medium">{svc.name}</p>
-                      <p className="text-cocoa/40 text-xs mt-0.5">{svc.durationMinutes} min · {formatPrice(svc.price)}</p>
+                      <p className="text-cocoa/40 text-xs mt-0.5">{formatDuration(svc.durationMinutes)} · {formatPrice(svc.price)}</p>
                     </div>
                     {svc.active ? <CheckCircle className="w-4 h-4 text-green-400" /> : <XCircle className="w-4 h-4 text-red-400" />}
                     <div className="flex gap-2">

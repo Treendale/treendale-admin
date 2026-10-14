@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, X, Clock, Phone, Mail } from 'lucide-react';
 import { adminAppointmentsApi } from '../lib/api';
-import { formatAWST } from '../contexts/AdminAuthContext';
+import { formatAWST, formatDuration } from '../contexts/AdminAuthContext';
+import { useToast } from '../contexts/ToastContext';
 import clsx from 'clsx';
 
 interface Appointment {
@@ -24,6 +25,7 @@ interface Appointment {
 
 export default function BookingsInboxPage() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -42,11 +44,25 @@ export default function BookingsInboxPage() {
 
   const confirmMutation = useMutation({
     mutationFn: (id: string) => adminAppointmentsApi.confirm(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pending-appointments'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-appointments'] });
+      toast.success('Booking confirmed successfully.');
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error?.message ?? 'Failed to confirm booking.');
+    },
   });
   const rejectMutation = useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) => adminAppointmentsApi.reject(id, reason),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['pending-appointments'] }); setRejectId(null); setRejectReason(''); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-appointments'] });
+      setRejectId(null);
+      setRejectReason('');
+      toast.success('Booking rejected.');
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error?.message ?? 'Failed to reject booking.');
+    },
   });
 
   return (
@@ -57,7 +73,8 @@ export default function BookingsInboxPage() {
           <h1 className="text-2xl font-bold text-cocoa">Bookings Inbox</h1>
           <p className="text-cocoa/40 text-sm mt-1">Pending bookings requiring your confirmation</p>
         </div>
-        <span className="px-3 py-1.5 rounded-full bg-yellow-500/20 text-yellow-300 text-sm font-medium">
+        <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-sm font-bold shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse" />
           {appointments.length} pending
         </span>
       </div>
@@ -72,32 +89,65 @@ export default function BookingsInboxPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {appointments.map((apt) => (
-            <div key={apt._id} className="card space-y-3">
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                  <p className="text-cocoa font-bold text-lg">{apt.clientId?.firstName} {apt.clientId?.lastName}</p>
-                  <p className="text-brand-300 font-semibold text-sm">
-                    {apt.serviceIds && apt.serviceIds.length > 0
-                      ? apt.serviceIds.map(s => `${s.category} - ${s.name}`).join(', ')
-                      : apt.serviceId ? `${apt.serviceId.category} - ${apt.serviceId.name}` : ''}
-                  </p>
-                  <p className="text-cocoa/50 text-sm flex items-center gap-1 mt-1">
-                    <Clock className="w-3.5 h-3.5" aria-hidden="true" />
-                    {formatAWST(apt.startTime)} · {apt.serviceIds && apt.serviceIds.length > 0
-                      ? apt.serviceIds.reduce((sum, s) => sum + s.durationMinutes, 0)
-                      : apt.serviceId?.durationMinutes} min
-                  </p>
-                </div>
-                <div className="flex flex-col items-end gap-1.5">
-                  <span className="badge-pending">pending</span>
-                  {apt.overlaps && apt.overlaps.length > 0 && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse">
-                      ⚠️ Overlap
+          {appointments.map((apt) => {
+            const services = apt.serviceIds && apt.serviceIds.length > 0
+              ? apt.serviceIds
+              : apt.serviceId ? [apt.serviceId] : [];
+            const totalDuration = services.reduce((sum, s) => sum + (s.durationMinutes || 0), 0);
+
+            return (
+              <div key={apt._id} className="card space-y-3.5">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-cocoa font-bold text-lg">{apt.clientId?.firstName} {apt.clientId?.lastName}</p>
+
+                    {/* Services Chips */}
+                    <div className="flex flex-wrap gap-2 my-2.5">
+                      {services.map((s, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#FAF0F2] border border-[#EBBAC2] text-xs shadow-xs"
+                        >
+                          <span className="text-[#80142B] font-semibold text-[11px] uppercase tracking-wider">{s.category}</span>
+                          <span className="text-[#80142B]/40">·</span>
+                          <span className="font-semibold text-cocoa">{s.name}</span>
+                          {s.durationMinutes ? (
+                            <span className="text-cocoa/50 text-[11px] font-normal">({s.durationMinutes}m)</span>
+                          ) : null}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Date, Time & Total Duration */}
+                    <p className="text-cocoa/70 text-sm flex items-center flex-wrap gap-x-2 gap-y-1 font-medium">
+                      <span className="flex items-center gap-1 text-cocoa">
+                        <Clock className="w-3.5 h-3.5 text-brand-500" aria-hidden="true" />
+                        {formatAWST(apt.startTime)}
+                      </span>
+                      <span className="text-cocoa/30">·</span>
+                      <span className="text-cocoa/60 font-normal">
+                        Total {formatDuration(totalDuration)}
+                      </span>
+                      {services.length > 1 && (
+                        <>
+                          <span className="text-cocoa/30">·</span>
+                          <span className="text-brand-500 font-semibold">{services.length} services</span>
+                        </>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider shadow-xs">
+                      pending
                     </span>
-                  )}
+                    {apt.overlaps && apt.overlaps.length > 0 && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/20 text-red-500 border border-red-500/30 animate-pulse">
+                        ⚠️ Overlap
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
 
               <div className="flex flex-col sm:flex-row gap-2 text-sm text-cocoa/40">
                 <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{apt.clientId?.phone}</span>
@@ -154,7 +204,8 @@ export default function BookingsInboxPage() {
                 </button>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       )}
       </div>

@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AdminAuthProvider, useAdminAuth } from './contexts/AdminAuthContext';
+import { ToastProvider } from './contexts/ToastContext';
 import AdminLayout from './components/AdminLayout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -53,8 +54,10 @@ function AdminRoutes() {
 
 export default function App() {
   return (
-    <AdminAuthProvider>
-      <AdminRoutes />
-    </AdminAuthProvider>
+    <ToastProvider>
+      <AdminAuthProvider>
+        <AdminRoutes />
+      </AdminAuthProvider>
+    </ToastProvider>
   );
 }

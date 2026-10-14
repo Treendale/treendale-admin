@@ -25,7 +25,7 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
-      login(user, tokens.accessToken);
+      login(user, tokens.accessToken, tokens.refreshToken);
       navigate('/', { replace: true });
     } catch (err: unknown) {
       setError((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message ?? 'Invalid credentials');

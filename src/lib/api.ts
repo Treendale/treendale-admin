@@ -37,14 +37,34 @@ export const api = axios.create({ baseURL: BASE_URL, headers: { 'Content-Type': 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('adminToken');
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
   return config;
 });
 
 api.interceptors.response.use(
   (res) => res,
-  (error) => {
-    if (error.response?.status === 401) {
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest?._retry) {
+      originalRequest._retry = true;
+      const refreshToken = localStorage.getItem('adminRefreshToken');
+      if (refreshToken) {
+        try {
+          const refreshRes = await axios.post(`${BASE_URL}/auth/refresh`, { refreshToken });
+          const newToken = refreshRes.data?.data?.accessToken;
+          if (newToken) {
+            localStorage.setItem('adminToken', newToken);
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return api(originalRequest);
+          }
+        } catch {
+          // Refresh failed, proceed to logout
+        }
+      }
       localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminRefreshToken');
       localStorage.removeItem('adminUser');
       window.location.href = '/login';
     }
@@ -111,10 +131,22 @@ export const adminWaitlistApi = {
 };
 
 export const uploadsApi = {
-  upload: (file: File) => {
+  upload: async (file: File) => {
     const form = new FormData();
     form.append('image', file);
-    return api.post('/uploads', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+    const token = localStorage.getItem('adminToken');
+    const res = await fetch(`${BASE_URL}/uploads`, {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: form,
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      throw new Error(data?.error?.message ?? `Upload failed (${res.status})`);
+    }
+    return { data };
   },
   list: () => api.get('/uploads'),
   delete: (filename: string) => api.delete(`/uploads/${filename}`),
