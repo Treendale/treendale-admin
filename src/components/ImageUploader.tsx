@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
-import { uploadsApi } from '../lib/api';
+import { uploadsApi, resolveImageUrl } from '../lib/api';
 import clsx from 'clsx';
 
 interface ImageUploaderProps {
@@ -55,7 +55,7 @@ export default function ImageUploader({
         onUploaded(url);
       }
     } catch (err: any) {
-      setError(err?.response?.data?.error?.message ?? 'Upload failed. Max 10MB, JPEG/PNG/WebP only.');
+      setError(err?.response?.data?.error?.message ?? err?.message ?? 'Upload failed. Max 10MB, JPEG/PNG/WebP only.');
     } finally {
       setUploading(false);
     }
@@ -86,7 +86,7 @@ export default function ImageUploader({
       >
         {currentUrl ? (
           <>
-            <img src={currentUrl} alt="Preview" className={clsx('w-full h-full', objectFitClass)} />
+            <img src={resolveImageUrl(currentUrl)} alt="Preview" className={clsx('w-full h-full', objectFitClass)} />
             <div className="absolute inset-0 bg-black/45 opacity-0 hover:opacity-100 transition-all flex items-center justify-center gap-3">
               <button
                 type="button"

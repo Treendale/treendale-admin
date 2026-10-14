@@ -4,40 +4,13 @@ import { format, addDays, startOfWeek, endOfWeek } from 'date-fns';
 import { ChevronLeft, ChevronRight, CheckCircle, X, Check, AlertCircle, CalendarX, Clock } from 'lucide-react';
 import { adminAppointmentsApi } from '../lib/api';
 import AdminDatePicker from '../components/AdminDatePicker';
+import { formatAWST, formatDuration } from '../contexts/AdminAuthContext';
 import clsx from 'clsx';
 
 const STATUS_BADGE: Record<string, string> = {
   pending: 'badge-pending', confirmed: 'badge-confirmed',
   cancelled: 'badge-cancelled', completed: 'badge-completed', no_show: 'badge-no_show',
 };
-
-function getOrdinalSuffix(day: number): string {
-  if (day > 3 && day < 21) return 'th';
-  switch (day % 10) {
-    case 1:  return 'st';
-    case 2:  return 'nd';
-    case 3:  return 'rd';
-    default: return 'th';
-  }
-}
-
-function formatHumanAWST(isoUtc: string): string {
-  try {
-    const d = new Date(isoUtc);
-    const dayStr = d.toLocaleDateString('en-AU', { timeZone: 'Australia/Perth', day: 'numeric' });
-    const monthStr = d.toLocaleDateString('en-AU', { timeZone: 'Australia/Perth', month: 'long' });
-    const yearStr = d.toLocaleDateString('en-AU', { timeZone: 'Australia/Perth', year: 'numeric' });
-    const timeStr = d.toLocaleTimeString('en-AU', { timeZone: 'Australia/Perth', hour: 'numeric', minute: '2-digit', hour12: true });
-
-    const dayNum = parseInt(dayStr, 10);
-    const suffix = getOrdinalSuffix(dayNum);
-    const formattedTime = timeStr.toLowerCase().replace(/\s+/g, '');
-    
-    return `${dayNum}${suffix} ${monthStr} ${yearStr}, ${formattedTime}`;
-  } catch (e) {
-    return isoUtc;
-  }
-}
 
 type ViewMode = 'day' | 'week';
 
@@ -188,18 +161,21 @@ export default function AppointmentsPage() {
                       {new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Perth', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(apt.startTime))}
                     </p>
                     <p className="text-cocoa/30 text-xs">
-                      {apt.serviceIds && apt.serviceIds.length > 0
+                      {formatDuration(apt.serviceIds && apt.serviceIds.length > 0
                         ? apt.serviceIds.reduce((sum, s) => sum + s.durationMinutes, 0)
-                        : apt.serviceId?.durationMinutes}m
+                        : apt.serviceId?.durationMinutes || 0)}
                     </p>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-cocoa font-medium truncate">{apt.clientId?.firstName} {apt.clientId?.lastName}</p>
-                    <p className="text-cocoa/40 text-sm truncate">
-                      {apt.serviceIds && apt.serviceIds.length > 0
-                        ? apt.serviceIds.map(s => `${s.category} - ${s.name}`).join(', ')
-                        : apt.serviceId ? `${apt.serviceId.category} - ${apt.serviceId.name}` : ''}
-                    </p>
+                    <div className="flex flex-wrap gap-1 my-0.5">
+                      {((apt.serviceIds && apt.serviceIds.length > 0) ? apt.serviceIds : apt.serviceId ? [apt.serviceId] : []).map((s, idx) => (
+                        <span key={idx} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] bg-[#FAF0F2] border border-[#EBBAC2] text-cocoa font-medium">
+                          <span className="text-[#80142B] font-semibold text-[10px]">{s.category} ·</span>
+                          <span>{s.name}</span>
+                        </span>
+                      ))}
+                    </div>
                     <p className="text-cocoa/30 text-xs">{apt.clientId?.phone}</p>
                   </div>
                   {apt.overlaps && apt.overlaps.length > 0 && (
@@ -346,22 +322,29 @@ export default function AppointmentsPage() {
             ) : (
               <>
                 <div className="space-y-2 text-sm">
-                  {[
+                  {([
                     ['Client', `${selected.clientId?.firstName} ${selected.clientId?.lastName}`],
                     ['Phone', selected.clientId?.phone],
                     ['Email', selected.clientId?.email],
-                    ['Services', selected.serviceIds && selected.serviceIds.length > 0 
-                      ? selected.serviceIds.map(s => `${s.category} - ${s.name}`).join(', ')
-                      : selected.serviceId ? `${selected.serviceId.category} - ${selected.serviceId.name}` : ''],
-                    ['Time', formatHumanAWST(selected.startTime)],
-                    ['Duration', `${selected.serviceIds && selected.serviceIds.length > 0
+                    ['Services', (
+                      <div className="flex flex-wrap gap-1.5">
+                        {((selected.serviceIds && selected.serviceIds.length > 0) ? selected.serviceIds : selected.serviceId ? [selected.serviceId] : []).map((s, idx) => (
+                          <span key={idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs bg-[#FAF0F2] border border-[#EBBAC2] text-cocoa font-medium">
+                            <span className="text-[#80142B] font-semibold text-[10px] uppercase tracking-wider">{s.category} ·</span>
+                            <span>{s.name}</span>
+                          </span>
+                        ))}
+                      </div>
+                    )],
+                    ['Time', formatAWST(selected.startTime)],
+                    ['Duration', formatDuration(selected.serviceIds && selected.serviceIds.length > 0
                       ? selected.serviceIds.reduce((sum, s) => sum + s.durationMinutes, 0)
-                      : selected.serviceId?.durationMinutes} min`],
+                      : selected.serviceId?.durationMinutes || 0)],
                     ['Status', selected.status.replace('_', ' ')],
-                  ].map(([label, val]) => (
-                    <div key={label} className="flex gap-2">
-                      <span className="text-cocoa/40 w-20 flex-shrink-0">{label}</span>
-                      <span className="text-cocoa">{val}</span>
+                  ] as Array<[string, React.ReactNode]>).map(([label, val]) => (
+                    <div key={label} className="flex gap-2 items-start">
+                      <span className="text-cocoa/40 w-20 flex-shrink-0 pt-0.5">{label}</span>
+                      <div className="text-cocoa flex-1">{val}</div>
                     </div>
                   ))}
                 </div>
@@ -378,7 +361,7 @@ export default function AppointmentsPage() {
                           <div>
                             <span className="font-semibold text-cocoa/90">{other.clientName}</span>
                             <div className="text-[10px] text-cocoa/40">
-                              {formatHumanAWST(other.startTime).split(', ')[1]} – {formatHumanAWST(other.endTime).split(', ')[1]}
+                              {formatAWST(other.startTime).split(', ')[1] || formatAWST(other.startTime)} – {formatAWST(other.endTime).split(', ')[1] || formatAWST(other.endTime)}
                             </div>
                           </div>
                           <span className={clsx('text-[10px] font-semibold uppercase tracking-wider', 

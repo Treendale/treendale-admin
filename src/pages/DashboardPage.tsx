@@ -98,11 +98,14 @@ export default function DashboardPage() {
                   <p className="text-cocoa font-medium text-sm truncate">
                     {apt.clientId?.firstName} {apt.clientId?.lastName}
                   </p>
-                  <p className="text-cocoa/40 text-xs">
-                    {apt.serviceIds && apt.serviceIds.length > 0
-                      ? apt.serviceIds.map(s => s.name).join(', ')
-                      : apt.serviceId?.name} · {formatAWST(apt.startTime)}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-1 my-1">
+                    {((apt.serviceIds && apt.serviceIds.length > 0) ? apt.serviceIds : apt.serviceId ? [apt.serviceId] : []).map((s, idx) => (
+                      <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded text-[11px] bg-[#FAF0F2] border border-[#EBBAC2] text-cocoa font-medium">
+                        {s.name}
+                      </span>
+                    ))}
+                    <span className="text-cocoa/40 text-xs ml-1">· {formatAWST(apt.startTime)}</span>
+                  </div>
                   <p className="text-cocoa/30 text-xs">{apt.clientId?.phone}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -157,11 +160,13 @@ export default function DashboardPage() {
                     <p className="text-cocoa text-sm font-medium truncate">
                       {apt.clientId?.firstName} {apt.clientId?.lastName}
                     </p>
-                    <p className="text-cocoa/40 text-xs">
-                      {apt.serviceIds && apt.serviceIds.length > 0
-                        ? apt.serviceIds.map(s => s.name).join(', ')
-                        : apt.serviceId?.name}
-                    </p>
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {((apt.serviceIds && apt.serviceIds.length > 0) ? apt.serviceIds : apt.serviceId ? [apt.serviceId] : []).map((s, idx) => (
+                        <span key={idx} className="inline-flex items-center px-1.5 py-0.2 rounded text-[11px] bg-[#FAF0F2] border border-[#EBBAC2] text-cocoa font-medium">
+                          {s.name}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   <span className={STATUS_BADGE[apt.status] ?? ''}>{apt.status}</span>
                 </div>
