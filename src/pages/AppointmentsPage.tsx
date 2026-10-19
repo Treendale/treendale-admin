@@ -141,55 +141,114 @@ export default function AppointmentsPage() {
         <div className="flex justify-center py-16"><div className="w-6 h-6 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" /></div>
       ) : appointments.length === 0 ? (
         <div className="card text-center py-12 text-cocoa/30">No appointments in this period.</div>
-      ) : (
-        <div className="space-y-2">
-          {appointments
-            .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
-            .map((apt) => (
-              <div
-                key={apt._id}
-                className="card hover:border-blush/30 transition-all cursor-pointer"
-                onClick={() => setSelected(apt)}
-                role="button"
-                tabIndex={0}
-                aria-label={`${apt.clientId?.firstName} ${apt.clientId?.lastName} — ${apt.serviceIds && apt.serviceIds.length > 0 ? apt.serviceIds.map(s => s.name).join(', ') : apt.serviceId?.name}`}
-                onKeyDown={(e) => e.key === 'Enter' && setSelected(apt)}
-              >
-                <div className="flex items-center gap-4 flex-wrap">
-                  <div className="text-center w-20 flex-shrink-0">
-                    <p className="text-blush font-bold text-sm">
-                      {new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Perth', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(apt.startTime))}
-                    </p>
-                    <p className="text-cocoa/30 text-xs">
-                      {formatDuration(apt.serviceIds && apt.serviceIds.length > 0
-                        ? apt.serviceIds.reduce((sum, s) => sum + s.durationMinutes, 0)
-                        : apt.serviceId?.durationMinutes || 0)}
-                    </p>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-cocoa font-medium truncate">{apt.clientId?.firstName} {apt.clientId?.lastName}</p>
-                    <div className="flex flex-wrap gap-1 my-0.5">
-                      {((apt.serviceIds && apt.serviceIds.length > 0) ? apt.serviceIds : apt.serviceId ? [apt.serviceId] : []).map((s, idx) => (
-                        <span key={idx} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] bg-[#FAF0F2] border border-[#EBBAC2] text-cocoa font-medium">
-                          <span className="text-[#80142B] font-semibold text-[10px]">{s.category} ·</span>
-                          <span>{s.name}</span>
-                        </span>
-                      ))}
-                    </div>
-                    <p className="text-cocoa/30 text-xs">{apt.clientId?.phone}</p>
-                  </div>
-                  {apt.overlaps && apt.overlaps.length > 0 && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse">
-                      ⚠️ Overlap
-                    </span>
-                  )}
-                  <span className={STATUS_BADGE[apt.status] ?? ''}>{apt.status.replace('_', ' ')}</span>
-                  <ChevronRight className="w-4 h-4 text-cocoa/20" aria-hidden="true" />
-                </div>
+      ) : (() => {
+        const sorted = [...appointments].sort(
+          (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+        );
+
+        const renderCard = (apt: Appointment) => (
+          <div
+            key={apt._id}
+            className="card hover:border-blush/30 transition-all cursor-pointer"
+            onClick={() => setSelected(apt)}
+            role="button"
+            tabIndex={0}
+            aria-label={`${apt.clientId?.firstName} ${apt.clientId?.lastName} — ${apt.serviceIds && apt.serviceIds.length > 0 ? apt.serviceIds.map(s => s.name).join(', ') : apt.serviceId?.name}`}
+            onKeyDown={(e) => e.key === 'Enter' && setSelected(apt)}
+          >
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="text-center w-24 flex-shrink-0 bg-[#FAF0F2] py-2 px-1.5 rounded-lg border border-[#EBBAC2]/60">
+                <span className="text-[11px] font-bold text-[#80142B] block uppercase tracking-wide">
+                  {new Intl.DateTimeFormat('en-AU', {
+                    timeZone: 'Australia/Perth',
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                  }).format(new Date(apt.startTime))}
+                </span>
+                <p className="text-cocoa font-bold text-sm leading-tight my-0.5">
+                  {new Intl.DateTimeFormat('en-AU', {
+                    timeZone: 'Australia/Perth',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                  }).format(new Date(apt.startTime))}
+                </p>
+                <p className="text-cocoa/50 text-[10px]">
+                  {formatDuration(apt.serviceIds && apt.serviceIds.length > 0
+                    ? apt.serviceIds.reduce((sum, s) => sum + s.durationMinutes, 0)
+                    : apt.serviceId?.durationMinutes || 0)}
+                </p>
               </div>
-            ))}
-        </div>
-      )}
+              <div className="flex-1 min-w-0">
+                <p className="text-cocoa font-medium truncate">{apt.clientId?.firstName} {apt.clientId?.lastName}</p>
+                <div className="flex flex-wrap gap-1 my-0.5">
+                  {((apt.serviceIds && apt.serviceIds.length > 0) ? apt.serviceIds : apt.serviceId ? [apt.serviceId] : []).map((s, idx) => (
+                    <span key={idx} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] bg-[#FAF0F2] border border-[#EBBAC2] text-cocoa font-medium">
+                      <span className="text-[#80142B] font-semibold text-[10px]">{s.category} ·</span>
+                      <span>{s.name}</span>
+                    </span>
+                  ))}
+                </div>
+                <p className="text-cocoa/30 text-xs">{apt.clientId?.phone}</p>
+              </div>
+              {apt.overlaps && apt.overlaps.length > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse">
+                  ⚠️ Overlap
+                </span>
+              )}
+              <span className={STATUS_BADGE[apt.status] ?? ''}>{apt.status.replace('_', ' ')}</span>
+              <ChevronRight className="w-4 h-4 text-cocoa/20" aria-hidden="true" />
+            </div>
+          </div>
+        );
+
+        if (view === 'day') {
+          return <div className="space-y-2">{sorted.map(renderCard)}</div>;
+        }
+
+        // Group by day for week view
+        const byDay = sorted.reduce<Record<string, Appointment[]>>((acc, apt) => {
+          const dayKey = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Australia/Perth',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(new Date(apt.startTime));
+          if (!acc[dayKey]) acc[dayKey] = [];
+          acc[dayKey].push(apt);
+          return acc;
+        }, {});
+
+        return (
+          <div className="space-y-6">
+            {Object.entries(byDay).map(([dayKey, dayApts]) => {
+              const dayTitle = new Intl.DateTimeFormat('en-AU', {
+                timeZone: 'Australia/Perth',
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              }).format(new Date(dayApts[0].startTime));
+
+              return (
+                <div key={dayKey} className="space-y-2.5">
+                  <div className="flex items-center gap-2 px-1 pt-1 border-b border-admin-border/50 pb-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-brand-500" />
+                    <h2 className="font-bold text-cocoa text-sm">{dayTitle}</h2>
+                    <span className="text-xs text-cocoa/45">
+                      · {dayApts.length} {dayApts.length === 1 ? 'appointment' : 'appointments'}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {dayApts.map(renderCard)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
       </div>
 
       {/* Appointment detail modal */}
@@ -336,7 +395,8 @@ export default function AppointmentsPage() {
                         ))}
                       </div>
                     )],
-                    ['Time', formatAWST(selected.startTime)],
+                    ['Date', new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Perth', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(selected.startTime))],
+                    ['Time', new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Perth', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(selected.startTime))],
                     ['Duration', formatDuration(selected.serviceIds && selected.serviceIds.length > 0
                       ? selected.serviceIds.reduce((sum, s) => sum + s.durationMinutes, 0)
                       : selected.serviceId?.durationMinutes || 0)],

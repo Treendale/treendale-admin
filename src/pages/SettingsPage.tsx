@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, Plus, Trash2, Settings, Clock, Ban, MapPin, ExternalLink } from 'lucide-react';
+import { Save, Plus, Trash2, Settings, Clock, Ban, MapPin } from 'lucide-react';
 import { adminSettingsApi } from '../lib/api';
 import clsx from 'clsx';
 import AdminDatePicker from '../components/AdminDatePicker';
+import MapLocationPicker from '../components/MapLocationPicker';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -221,84 +222,32 @@ export default function SettingsPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="map-latitude" className="label text-xs">Pin Latitude</label>
-              <input
-                id="map-latitude"
-                type="number"
-                step="any"
-                className="input text-sm font-mono"
-                placeholder="-33.2847"
-                value={form.mapLatitude ?? -33.2847}
-                onChange={(e) => setForm({ ...form, mapLatitude: e.target.value ? parseFloat(e.target.value) : undefined })}
-              />
+          {/* Interactive Marker Mover Map */}
+          <div className="space-y-2 pt-1">
+            <div className="flex items-center justify-between">
+              <label className="label text-xs font-bold text-cocoa">Studio Location & Pinpoint Map</label>
+              <span className="text-xs text-cocoa/50">Drag pin or click to move marker</span>
             </div>
-            <div>
-              <label htmlFor="map-longitude" className="label text-xs">Pin Longitude</label>
-              <input
-                id="map-longitude"
-                type="number"
-                step="any"
-                className="input text-sm font-mono"
-                placeholder="115.7196"
-                value={form.mapLongitude ?? 115.7196}
-                onChange={(e) => setForm({ ...form, mapLongitude: e.target.value ? parseFloat(e.target.value) : undefined })}
-              />
-            </div>
-          </div>
 
-          <div className="flex gap-2 items-center flex-wrap pt-1">
-            <button
-              type="button"
-              onClick={() => {
-                setForm({
-                  ...form,
-                  mapLatitude: -33.2847,
-                  mapLongitude: 115.7196,
-                  address: form.address || 'Shop 2, 10 The Promenade, Australind WA 6233',
-                  mapPlaceName: form.mapPlaceName || 'Treendale Threading & Beauty',
-                });
+            <MapLocationPicker
+              latitude={form.mapLatitude ?? -33.2847}
+              longitude={form.mapLongitude ?? 115.7196}
+              address={form.address}
+              onChange={({ latitude, longitude, address: newAddr }) => {
+                setForm((prev) => ({
+                  ...prev,
+                  mapLatitude: latitude,
+                  mapLongitude: longitude,
+                  ...(newAddr ? { address: newAddr } : {}),
+                }));
               }}
-              className="btn-secondary text-xs py-1.5 px-3 min-h-[36px]"
-            >
-              Set Treendale Australind WA Coordinates
-            </button>
-            <a
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                (form.mapLatitude && form.mapLongitude) ? `${form.mapLatitude},${form.mapLongitude}` : (form.address || 'Treendale Australind WA')
-              )}`}
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs text-brand-300 hover:text-brand-200 flex items-center gap-1 ml-auto"
-            >
-              Open in Google Maps <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
-
-          {/* Live Map Preview */}
-          <div className="mt-4 pt-4 border-t border-admin-border">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-cocoa/60 uppercase tracking-wider">Live Pinpoint Map Preview</span>
-              <span className="text-xs text-cocoa/40">Shown on user confirmation</span>
-            </div>
-            <div className="rounded-xl overflow-hidden border border-admin-border bg-admin-bg relative aspect-video sm:aspect-[21/9] max-h-56">
-              <iframe
-                title="Salon Pinpoint Map Preview"
-                width="100%"
-                height="100%"
-                className="border-0 w-full h-full"
-                loading="lazy"
-                src={
-                  form.mapEmbedUrl ||
-                  `https://maps.google.com/maps?q=${
-                    (form.mapLatitude !== undefined && form.mapLongitude !== undefined)
-                      ? `${form.mapLatitude},${form.mapLongitude}`
-                      : encodeURIComponent(form.address || 'Treendale WA 6233')
-                  }&hl=en&z=16&output=embed`
-                }
-              />
-            </div>
+              onApplyAddress={(addr) => {
+                setForm((prev) => ({
+                  ...prev,
+                  address: addr,
+                }));
+              }}
+            />
           </div>
         </div>
       </div>
