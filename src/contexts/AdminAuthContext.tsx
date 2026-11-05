@@ -1,8 +1,24 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { adminAuthApi } from '../lib/api';
 
-interface AdminUser { _id: string; role: string; firstName: string; lastName: string; email: string; }
-interface AdminAuthCtx { user: AdminUser | null; isLoading: boolean; login: (u: AdminUser, token: string, refreshToken?: string) => void; logout: () => void; }
+export interface AdminUser {
+  _id: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+}
+
+interface AdminAuthCtx {
+  user: AdminUser | null;
+  isLoading: boolean;
+  login: (u: AdminUser, token: string, refreshToken?: string) => void;
+  logout: () => void;
+  updateUser: (u: Partial<AdminUser>) => void;
+  refreshUser: () => Promise<void>;
+}
 
 const Ctx = createContext<AdminAuthCtx | undefined>(undefined);
 
@@ -10,10 +26,33 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  async function refreshUser() {
+    try {
+      const res = await adminAuthApi.me();
+      const u = res?.data?.data?.user;
+      if (u) {
+        setUser(u);
+        localStorage.setItem('adminUser', JSON.stringify(u));
+      }
+    } catch {
+      // Ignored if offline or unauthenticated
+    }
+  }
+
   useEffect(() => {
-    try { setUser(JSON.parse(localStorage.getItem('adminUser') ?? 'null')); }
-    catch { setUser(null); }
-    setIsLoading(false);
+    try {
+      const stored = localStorage.getItem('adminUser');
+      if (stored) setUser(JSON.parse(stored));
+    } catch {
+      setUser(null);
+    }
+
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      refreshUser().finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
   function login(u: AdminUser, token: string, refreshToken?: string) {
@@ -25,6 +64,15 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     setUser(u);
   }
 
+  function updateUser(partial: Partial<AdminUser>) {
+    setUser((prev) => {
+      if (!prev) return null;
+      const updated = { ...prev, ...partial };
+      localStorage.setItem('adminUser', JSON.stringify(updated));
+      return updated;
+    });
+  }
+
   function logout() {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminRefreshToken');
@@ -32,7 +80,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
-  return <Ctx.Provider value={{ user, isLoading, login, logout }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ user, isLoading, login, logout, updateUser, refreshUser }}>{children}</Ctx.Provider>;
 }
 
 export function useAdminAuth() {

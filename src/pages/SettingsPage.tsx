@@ -28,6 +28,7 @@ interface SettingsData {
   mapEmbedUrl?: string;
   categories: string[];
   cancellationWindowHours?: number;
+  notificationEmail?: string;
 }
 
 const emptyBlockedSlot: Omit<BlockedSlot, '_id'> = { date: '', startTime: '09:00', endTime: '10:00', reason: '' };
@@ -133,6 +134,21 @@ export default function SettingsPage() {
       {/* ── General ── */}
       <div className="card space-y-4">
         <h2 className="font-semibold text-cocoa">General</h2>
+
+        <div>
+          <label htmlFor="notification-email" className="label">Admin Notification Email</label>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <input
+              id="notification-email"
+              type="email"
+              className="input max-w-md"
+              placeholder="e.g. info@treendalethreading.com.au"
+              value={form.notificationEmail ?? ''}
+              onChange={(e) => setForm({ ...form, notificationEmail: e.target.value })}
+            />
+            <span className="text-cocoa/40 text-xs">Destination for booking alerts &amp; admin emails (can also be managed in Profile)</span>
+          </div>
+        </div>
 
         <div>
           <label htmlFor="booking-window" className="label">Booking Window (days ahead)</label>

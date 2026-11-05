@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calendar, Inbox, Scissors,
   UserCircle, FileText, Settings, Bell, BarChart2,
-  Menu, X, LogOut, Sparkles
+  Menu, X, LogOut, Sparkles, User
 } from 'lucide-react';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
 import { useQuery } from '@tanstack/react-query';
@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { to: '/settings',       label: 'Settings',       icon: Settings },
   { to: '/notifications',  label: 'Notifications',  icon: Bell },
   { to: '/reports',        label: 'Reports',        icon: BarChart2 },
+  { to: '/profile',        label: 'Profile',        icon: User },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -89,15 +90,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         <div className="border-t border-admin-border p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-full bg-brand-500/20 flex items-center justify-center text-brand-300 font-bold text-sm">
-              {user?.firstName?.[0]}
+          <NavLink
+            to="/profile"
+            className="flex items-center gap-3 mb-3 p-2 -mx-2 rounded-lg hover:bg-brand-500/10 transition-colors group cursor-pointer"
+            title="Open Admin Profile"
+          >
+            <div className="w-8 h-8 rounded-full bg-brand-500/20 flex items-center justify-center text-brand-700 font-bold text-sm group-hover:bg-brand-500/30 transition-colors">
+              {user?.firstName?.[0] || 'A'}
             </div>
-            <div className="min-w-0">
-              <p className="text-cocoa text-sm font-medium truncate">{user?.firstName} {user?.lastName}</p>
-              <p className="text-cocoa/30 text-xs capitalize">{user?.role}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-cocoa text-sm font-medium truncate group-hover:text-brand-700 transition-colors">
+                {user?.firstName} {user?.lastName}
+              </p>
+              <p className="text-cocoa/40 text-xs capitalize flex items-center justify-between">
+                <span>{user?.role || 'Admin'}</span>
+                <span className="text-[10px] text-brand-600 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">Profile &rarr;</span>
+              </p>
             </div>
-          </div>
+          </NavLink>
           <button onClick={handleLogout} className="btn-ghost w-full justify-start text-xs">
             <LogOut className="w-3.5 h-3.5" /> Sign Out
           </button>
@@ -123,8 +133,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
           <NavItems />
         </div>
-        <div className="border-t border-admin-border p-3">
-          <button onClick={handleLogout} className="btn-ghost w-full text-xs">
+        <div className="border-t border-admin-border p-3 space-y-1">
+          <NavLink
+            to="/profile"
+            onClick={() => setSidebarOpen(false)}
+            className="flex items-center gap-3 p-2 rounded-lg hover:bg-brand-500/10 text-xs font-medium text-cocoa transition-colors"
+          >
+            <div className="w-7 h-7 rounded-full bg-brand-500/20 text-brand-700 font-bold flex items-center justify-center">
+              {user?.firstName?.[0] || 'A'}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-semibold">{user?.firstName} {user?.lastName}</p>
+              <p className="text-[10px] text-brand-600">Admin Profile &amp; Settings &rarr;</p>
+            </div>
+          </NavLink>
+          <button onClick={handleLogout} className="btn-ghost w-full text-xs justify-start">
             <LogOut className="w-3.5 h-3.5" /> Sign Out
           </button>
         </div>
@@ -150,9 +173,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </span>
             )}
           </NavLink>
-          <div className="text-sm text-cocoa/50 hidden sm:block">
-            {user?.firstName} {user?.lastName}
-          </div>
+          <NavLink
+            to="/profile"
+            className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-sm text-cocoa/80 hover:text-brand-700 hover:bg-brand-500/10 transition-colors"
+            title="Edit Admin Profile &amp; Notification Email"
+          >
+            <div className="w-7 h-7 rounded-full bg-brand-500/20 text-brand-700 font-bold text-xs flex items-center justify-center">
+              {user?.firstName?.[0] || 'A'}
+            </div>
+            <span className="text-sm font-medium text-cocoa/80 hidden sm:inline">
+              {user?.firstName} {user?.lastName}
+            </span>
+          </NavLink>
         </header>
 
         <main className="flex-1 p-4 md:p-6">
