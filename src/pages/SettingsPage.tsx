@@ -232,7 +232,7 @@ export default function SettingsPage() {
               id="salon-address"
               type="text"
               className="input text-sm"
-              placeholder="e.g. Shop 2, 10 The Promenade, Australind WA 6233"
+              placeholder="e.g. Australind, WA"
               value={form.address ?? ''}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
             />
