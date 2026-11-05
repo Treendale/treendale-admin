@@ -13,6 +13,7 @@ import ContentPage from './pages/ContentPage';
 import SettingsPage from './pages/SettingsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import ReportsPage from './pages/ReportsPage';
+import ProfilePage from './pages/ProfilePage';
 
 function RequireAdmin({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAdminAuth();
@@ -43,6 +44,7 @@ function AdminRoutes() {
               <Route path="/settings"     element={<SettingsPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/reports"      element={<ReportsPage />} />
+              <Route path="/profile"      element={<ProfilePage />} />
               <Route path="*"             element={<Navigate to="/" replace />} />
             </Routes>
           </AdminLayout>

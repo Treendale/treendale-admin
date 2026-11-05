@@ -75,6 +75,10 @@ api.interceptors.response.use(
 export const adminAuthApi = {
   login: (data: { email: string; password: string }) => api.post('/auth/staff-login', data),
   me: () => api.get('/auth/me'),
+  updateProfile: (data: { firstName?: string; lastName?: string; phone?: string; email?: string }) =>
+    api.patch('/auth/me', data),
+  changePassword: (data: { currentPassword?: string; newPassword: string }) =>
+    api.post('/auth/change-password', data),
 };
 
 export const adminServicesApi = {
